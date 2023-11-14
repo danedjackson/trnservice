@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -6,12 +7,14 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using trnservice.Models;
+using trnservice.Services;
 
 namespace trnservice.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly ITRNService trnService;
 
         public HomeController(ILogger<HomeController> logger)
         {
@@ -22,34 +25,19 @@ namespace trnservice.Controllers
         {
             return View();
         }
+
         [HttpPost]
-        public IActionResult Index(User user)
+        public IActionResult Index(TrnDTO trnDTO)
         {
-            var test = new User
-            {
-                Username = "dane",
-                Password = "pass"
-            };
-            if(user.Password == test.Password && user.Username == test.Username)
-            {
-                return RedirectToAction("Success");
-            }
-            else
-            {
-                return RedirectToAction("Fail");
-            }
+            _logger.LogInformation(trnDTO.DateOfBirth.ToString());
+            trnService.SingleTRNValidation(trnDTO);
+            return RedirectToAction("Success");
         }
 
         public IActionResult Success()
         {
             return View();
         }
-
-        public IActionResult Fail()
-        {
-            return View();
-        }
-
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

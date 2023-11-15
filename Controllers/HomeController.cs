@@ -26,20 +26,24 @@ namespace trnservice.Controllers
         }
 
         [HttpPost]
-        public async Task<FileResult> Index(TrnViewModel trnDTO)
+        public async Task<IActionResult> Index(TrnViewModel trnDTO)
         {
+            if(!ModelState.IsValid)
+            {
+                return View("Index", trnDTO);
+            }
             _logger.LogInformation("Initiating process to search for individual TRN");
             // Retreive Memory Stream of the TRN Search results
             return _trnService.SingleTRNValidation(trnDTO);
         }
 
 
-        public IActionResult Success()
+        public IActionResult Upload()
         {
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> Success(IFormFile file)
+        public async Task<IActionResult> Upload(IFormFile file)
         {
             _logger.LogInformation("Initiating process to search for multiple TRN");
             if (file == null || file.Length == 0 || !file.FileName.EndsWith(".csv"))

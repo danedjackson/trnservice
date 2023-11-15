@@ -1,6 +1,6 @@
 ﻿@model List<trnservice.Models.TrnViewModel>
 @{
-    ViewData["Title"] = "Success";
+    ViewData["Title"] = "Upload";
 }
 
 <h1>File Upload</h1>
@@ -9,7 +9,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form method="post" enctype="multipart/form-data" asp-action="Success">
+        <form method="post" enctype="multipart/form-data" asp-action="Upload">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <label class="control-label">Upload CSV File</label>
             <input type="file" name="file" accept=".csv" />

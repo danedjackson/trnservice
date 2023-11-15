@@ -49,7 +49,7 @@ namespace trnservice.Services
                 sb.AppendLine(string.Format("{0},{1},{2},{3},{4},{5}", trnDTO.FirstName, trnDTO.MiddleName, trnDTO.LastName, trnDTO.DateOfBirth, trnDTO.Gender, "NOT FOUND"));
             }
 
-            return GenerateTRNResponseFile(sb, "TRN_Result_");
+            return GenerateTRNResponseFile(sb, ltrn+"_TRN_Result_");
         }
 
         public FileResult MultipleTRNValidation(IFormFile formFile)

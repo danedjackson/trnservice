@@ -1,18 +1,16 @@
 ﻿@model List<trnservice.Models.TrnViewModel>
 @{
-    ViewData["Title"] = "Upload";
+    ViewData["Title"] = "TRN Validation Service";
 }
 
-<h1>File Upload</h1>
-
-<h4>TRN Validation Service</h4>
+<h1>TRN Validation Service</h1>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form method="post" enctype="multipart/form-data" asp-action="Upload">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <label class="control-label">Upload CSV File</label>
-            <input type="file" name="file" accept=".csv" />
+            <input type="file" name="file" accept=".csv" style="margin-bottom: 10px;"/>
             <div class="form-group">
                 <input type="submit" value="Upload" class="btn btn-primary" />
             </div>
@@ -20,4 +18,7 @@
     </div>
 </div>
 
+<div>
+    <a asp-action="Index">Enter User information</a>
+</div>
 

@@ -1,25 +1,32 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using trnservice.Models;
 
 namespace trnservice.Services
 {
     public class TRNService : ITRNService
     {
+        private readonly ILogger _logger;
 
-        public void SingleTRNValidation(TrnDTO trnDTO)
+        public TRNService(ILogger logger)
         {
+            _logger = logger;
+        }
+
+        public FileResult SingleTRNValidation(TrnDTO trnDTO)
+        {
+            _logger.LogInformation("Is this null? "+ trnDTO.FirstName);
             string ltrn = trnDTO.Trn;
             ServiceReference1.MLSSServicesTRNClient obj = new ServiceReference1.MLSSServicesTRNClient();
 
             StringBuilder sb = new StringBuilder();
 
-            string v = ltrn[1].ToString();
+            string v = ltrn.ToString();
             // Converted to char away to check if all characters are numeric
             v.ToCharArray();
 
@@ -41,7 +48,17 @@ namespace trnservice.Services
                 // If not found, print the First Name, Middle Name, Last Name, DOB, Gender and "NOT FOUND"
                 sb.AppendLine(string.Format("{0},{1},{2},{3},{4},{5}", trnDTO.FirstName, trnDTO.MiddleName, trnDTO.LastName, trnDTO.DateOfBirth, trnDTO.Gender, "NOT FOUND"));
             }
-            // Prompt download
+            var dateTime = DateTime.Now.ToString();
+            // Transforming our String Builder into a memory stream, which is then be converted to File for Download
+            MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(sb.ToString()));
+            // Sets the position to the beginning of the stream before conversion
+            memoryStream.Seek(0, SeekOrigin.Begin);
+
+
+            return new FileContentResult(memoryStream.ToArray(), "application/octet-stream")
+            {
+                FileDownloadName = "TRN Results - " + dateTime + ".csv"
+            };
         }
 
         public void MultipleTRNValidation(IFormFile formFile)

@@ -1,10 +1,7 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
+using System.IO;
 using System.Threading.Tasks;
 using trnservice.Models;
 using trnservice.Services;
@@ -14,11 +11,12 @@ namespace trnservice.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly ITRNService trnService;
+        private readonly ITRNService _trnService;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, ITRNService trnService)
         {
             _logger = logger;
+            _trnService = trnService;
         }
 
         public IActionResult Index()
@@ -27,11 +25,11 @@ namespace trnservice.Controllers
         }
 
         [HttpPost]
-        public IActionResult Index(TrnDTO trnDTO)
+        public async Task<FileResult> Index(TrnDTO trnDTO)
         {
             _logger.LogInformation(trnDTO.DateOfBirth.ToString());
-            trnService.SingleTRNValidation(trnDTO);
-            return RedirectToAction("Success");
+            // Retreive Memory Stream of the TRN Search results
+            return _trnService.SingleTRNValidation(trnDTO);
         }
 
         public IActionResult Success()

@@ -25,8 +25,7 @@ namespace trnservice
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-            services.AddSingleton(typeof(ILogger), services
-                                                        .BuildServiceProvider()
+            services.AddSingleton(typeof(ILogger), services.BuildServiceProvider()
                                                         .GetService<ILogger<TRNService>>());
             
             // Add Dependency Injection for Service layer 

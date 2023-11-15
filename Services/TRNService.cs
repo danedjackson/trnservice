@@ -18,7 +18,7 @@ namespace trnservice.Services
             _logger = logger;
         }
 
-        public FileResult SingleTRNValidation(TrnDTO trnDTO)
+        public FileResult SingleTRNValidation(TrnViewModel trnDTO)
         {
             _logger.LogInformation("Is this null? "+ trnDTO.FirstName);
             string ltrn = trnDTO.Trn;
@@ -48,7 +48,9 @@ namespace trnservice.Services
                 // If not found, print the First Name, Middle Name, Last Name, DOB, Gender and "NOT FOUND"
                 sb.AppendLine(string.Format("{0},{1},{2},{3},{4},{5}", trnDTO.FirstName, trnDTO.MiddleName, trnDTO.LastName, trnDTO.DateOfBirth, trnDTO.Gender, "NOT FOUND"));
             }
-            var dateTime = DateTime.Now.ToString();
+
+            var dateTime = DateTime.Now.ToString("dd-MM-yyyy-HH-mm-ss");
+
             // Transforming our String Builder into a memory stream, which is then be converted to File for Download
             MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(sb.ToString()));
             // Sets the position to the beginning of the stream before conversion
@@ -57,11 +59,11 @@ namespace trnservice.Services
 
             return new FileContentResult(memoryStream.ToArray(), "application/octet-stream")
             {
-                FileDownloadName = "TRN Results - " + dateTime + ".csv"
+                FileDownloadName = "TRN_Results_" + dateTime + ".csv"
             };
         }
 
-        public void MultipleTRNValidation(IFormFile formFile)
+        public FileResult MultipleTRNValidation(IFormFile formFile)
         {
             string[] ltrn;
             //Console.WriteLine("Hello World!");
@@ -70,32 +72,49 @@ namespace trnservice.Services
 
             StringBuilder sb = new StringBuilder();
 
-            foreach (string line in File.ReadLines(@"C:\Users\robinsonod\Downloads\Reports\WestmorelandWestern17-05-2023remainder.csv"))
+            using (var reader = new StreamReader(formFile.OpenReadStream()))
             {
-
-                ltrn = line.Split(',');
-                string v = ltrn[1].ToString();
-                // Converted to char away to check if all characters are numeric
-                v.ToCharArray();
-
-
-                if (ltrn[1] == "" || (!v.All(char.IsDigit)))
+                while(reader.Peek() >= 0)
                 {
-                    // If trn is empty or not all numeric, assign default value of "111111111"
-                    ltrn[1] = "111111111";
-                }
+                    string line = reader.ReadLine();
 
-                var objtrn = obj.GetIndividualTrn(int.Parse(ltrn[1]));
-                if (objtrn != null && objtrn.IndividualInfo != null)
-                {
-                    sb.AppendLine(string.Format("{0},{1},{2},{3},{4},{5},{6}", line, objtrn.IndividualInfo.FirstName, objtrn.IndividualInfo.MiddleName, objtrn.IndividualInfo.LastName, objtrn.IndividualInfo.BirthDate.Value.ToShortDateString(), objtrn.IndividualInfo.GenderType, objtrn.IndividualInfo.NbrTrn));
-                }
-                else
-                {
-                    sb.AppendLine(line);
+                    ltrn = line.Split(',');
+                    string v = ltrn[1].ToString();
+                    // Converted to char away to check if all characters are numeric
+                    v.ToCharArray();
+
+
+                    if (ltrn[1] == "" || (!v.All(char.IsDigit)))
+                    {
+                        // If trn is empty or not all numeric, assign default value of "111111111"
+                        ltrn[1] = "111111111";
+                    }
+
+                    var objtrn = obj.GetIndividualTrn(int.Parse(ltrn[1]));
+                    if (objtrn != null && objtrn.IndividualInfo != null)
+                    {
+                        sb.AppendLine(string.Format("{0},{1},{2},{3},{4},{5},{6}", line, objtrn.IndividualInfo.FirstName, objtrn.IndividualInfo.MiddleName, objtrn.IndividualInfo.LastName, objtrn.IndividualInfo.BirthDate.Value.ToShortDateString(), objtrn.IndividualInfo.GenderType, objtrn.IndividualInfo.NbrTrn));
+                    }
+                    else
+                    {
+                        sb.AppendLine(line);
+                    }
                 }
             }
-            File.AppendAllText(@"C:\Users\robinsonod\Downloads\Reports\WestmorelandWestern 17-05-2023 remainder Results2.csv", sb.ToString());
+
+
+            var dateTime = DateTime.Now.ToString("dd-MM-yyyy-HH-mm-ss");
+
+            // Transforming our String Builder into a memory stream, which is then be converted to File for Download
+            MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(sb.ToString()));
+            // Sets the position to the beginning of the stream before conversion
+            memoryStream.Seek(0, SeekOrigin.Begin);
+
+
+            return new FileContentResult(memoryStream.ToArray(), "application/octet-stream")
+            {
+                FileDownloadName = "BULK_TRN_Results_" + dateTime + ".csv"
+            };
         }
     }
 }

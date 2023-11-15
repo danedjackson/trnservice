@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace trnservice.Models
 {
-    public class TrnDTO
+    public class TrnViewModel
     {
         public string FirstName { get; set; }
         public string MiddleName { get; set; }

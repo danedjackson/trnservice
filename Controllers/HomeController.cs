@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.IO;
@@ -25,16 +26,27 @@ namespace trnservice.Controllers
         }
 
         [HttpPost]
-        public async Task<FileResult> Index(TrnDTO trnDTO)
+        public async Task<FileResult> Index(TrnViewModel trnDTO)
         {
-            _logger.LogInformation(trnDTO.DateOfBirth.ToString());
+            _logger.LogInformation("Initiating process to search for individual TRN");
             // Retreive Memory Stream of the TRN Search results
             return _trnService.SingleTRNValidation(trnDTO);
         }
 
+
         public IActionResult Success()
         {
             return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> Success(IFormFile file)
+        {
+            _logger.LogInformation("Initiating process to search for multiple TRN");
+            if (file == null || file.Length == 0 || !file.FileName.EndsWith(".csv"))
+            {
+                return Content("No csv file selected");
+            }
+            return _trnService.MultipleTRNValidation(file);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

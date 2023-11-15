@@ -6,7 +6,7 @@ namespace trnservice.Services
 {
     public interface ITRNService
     {
-        public FileResult SingleTRNValidation(TrnDTO trnDTO);
-        public void MultipleTRNValidation(IFormFile formFile);
+        public FileResult SingleTRNValidation(TrnViewModel trnDTO);
+        public FileResult MultipleTRNValidation(IFormFile formFile);
     }
 }

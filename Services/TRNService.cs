@@ -49,24 +49,12 @@ namespace trnservice.Services
                 sb.AppendLine(string.Format("{0},{1},{2},{3},{4},{5}", trnDTO.FirstName, trnDTO.MiddleName, trnDTO.LastName, trnDTO.DateOfBirth, trnDTO.Gender, "NOT FOUND"));
             }
 
-            var dateTime = DateTime.Now.ToString("dd-MM-yyyy-HH-mm-ss");
-
-            // Transforming our String Builder into a memory stream, which is then be converted to File for Download
-            MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(sb.ToString()));
-            // Sets the position to the beginning of the stream before conversion
-            memoryStream.Seek(0, SeekOrigin.Begin);
-
-
-            return new FileContentResult(memoryStream.ToArray(), "application/octet-stream")
-            {
-                FileDownloadName = "TRN_Results_" + dateTime + ".csv"
-            };
+            return GenerateTRNResponseFile(sb, "TRN_Result_");
         }
 
         public FileResult MultipleTRNValidation(IFormFile formFile)
         {
             string[] ltrn;
-            //Console.WriteLine("Hello World!");
 
             ServiceReference1.MLSSServicesTRNClient obj = new ServiceReference1.MLSSServicesTRNClient();
 
@@ -101,19 +89,24 @@ namespace trnservice.Services
                     }
                 }
             }
+            
+            return GenerateTRNResponseFile(sb, "BULK_TRN_Results_");
+        }
 
-
+        private FileContentResult GenerateTRNResponseFile(StringBuilder sb, string fileName)
+        {
             var dateTime = DateTime.Now.ToString("dd-MM-yyyy-HH-mm-ss");
 
             // Transforming our String Builder into a memory stream, which is then be converted to File for Download
             MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(sb.ToString()));
+
             // Sets the position to the beginning of the stream before conversion
             memoryStream.Seek(0, SeekOrigin.Begin);
 
-
+            _logger.LogInformation("Converting memory stream to file for download.");
             return new FileContentResult(memoryStream.ToArray(), "application/octet-stream")
             {
-                FileDownloadName = "BULK_TRN_Results_" + dateTime + ".csv"
+                FileDownloadName = fileName + dateTime + ".csv"
             };
         }
     }

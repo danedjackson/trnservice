@@ -86,6 +86,12 @@ namespace trnservice.Services
                         ltrn[5] = "111111111";
                     }
 
+                    // If Gender is not one character, format to match convention of single character
+                    if(ltrn[4].Length > 1)
+                    {
+                        ltrn[4] = ltrn[4].Substring(0, 1);
+                    }
+
                     var objtrn = obj.GetIndividualTrn(int.Parse(ltrn[5]));
                     if (objtrn != null && objtrn.IndividualInfo != null
                         // Assering that names match before returning a positive result

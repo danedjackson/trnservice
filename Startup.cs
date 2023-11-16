@@ -25,11 +25,16 @@ namespace trnservice
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+
+            //Add Logger configuration
             services.AddSingleton(typeof(ILogger), services.BuildServiceProvider()
                                                         .GetService<ILogger<TRNService>>());
             
             // Add Dependency Injection for Service layer 
             services.AddScoped<ITRNService, TRNService>();
+
+            // Identity
+            services.AddRazorPages();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -47,6 +52,8 @@ namespace trnservice
 
             app.UseRouting();
 
+            // Identity
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
@@ -54,6 +61,8 @@ namespace trnservice
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+                // Identity
+                endpoints.MapRazorPages();
             });
         }
     }

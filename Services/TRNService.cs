@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using trnservice.Models;
 
 namespace trnservice.Services
@@ -26,6 +27,9 @@ namespace trnservice.Services
 
             StringBuilder sb = new StringBuilder();
 
+            // Add headings to String Builder
+            sb.AppendLine("FIRSTNAME,MIDDLENAME,LASTNAME,DOB,GENDER,TRN");
+
             string v = ltrn.ToString();
             // Converted to char away to check if all characters are numeric
             v.ToCharArray();
@@ -38,7 +42,11 @@ namespace trnservice.Services
             }
 
             var objtrn = obj.GetIndividualTrn(int.Parse(ltrn));
-            if (objtrn != null && objtrn.IndividualInfo != null)
+            if (objtrn != null && objtrn.IndividualInfo != null 
+                // Assering that names match before returning a positive result
+                && RawString(trnDTO.FirstName) == RawString(objtrn.IndividualInfo.FirstName)
+                && RawString(trnDTO.LastName) == RawString(objtrn.IndividualInfo.LastName)
+                && RawString(trnDTO.Gender) == RawString(objtrn.IndividualInfo.GenderType))
             {
                 // If found, print the First Name, Middle Name, Last Name, DOB, Gender, and TRN
                 sb.AppendLine(string.Format("{0},{1},{2},{3},{4},{5}", objtrn.IndividualInfo.FirstName, objtrn.IndividualInfo.MiddleName, objtrn.IndividualInfo.LastName, objtrn.IndividualInfo.BirthDate.Value.ToShortDateString(), objtrn.IndividualInfo.GenderType, objtrn.IndividualInfo.NbrTrn));
@@ -67,19 +75,23 @@ namespace trnservice.Services
                     string line = reader.ReadLine();
 
                     ltrn = line.Split(',');
-                    string v = ltrn[1].ToString();
+                    string v = ltrn[5].ToString();
                     // Converted to char away to check if all characters are numeric
                     v.ToCharArray();
 
 
-                    if (ltrn[1] == "" || (!v.All(char.IsDigit)))
+                    if (ltrn[5] == "" || (!v.All(char.IsDigit)))
                     {
                         // If trn is empty or not all numeric, assign default value of "111111111"
-                        ltrn[1] = "111111111";
+                        ltrn[5] = "111111111";
                     }
 
-                    var objtrn = obj.GetIndividualTrn(int.Parse(ltrn[1]));
-                    if (objtrn != null && objtrn.IndividualInfo != null)
+                    var objtrn = obj.GetIndividualTrn(int.Parse(ltrn[5]));
+                    if (objtrn != null && objtrn.IndividualInfo != null
+                        // Assering that names match before returning a positive result
+                        && RawString(ltrn[0]) == RawString(objtrn.IndividualInfo.FirstName)
+                        && RawString(ltrn[2]) == RawString(objtrn.IndividualInfo.LastName)
+                        && RawString(ltrn[4]) == RawString(objtrn.IndividualInfo.GenderType))
                     {
                         sb.AppendLine(string.Format("{0},{1},{2},{3},{4},{5},{6}", line, objtrn.IndividualInfo.FirstName, objtrn.IndividualInfo.MiddleName, objtrn.IndividualInfo.LastName, objtrn.IndividualInfo.BirthDate.Value.ToShortDateString(), objtrn.IndividualInfo.GenderType, objtrn.IndividualInfo.NbrTrn));
                     }
@@ -108,6 +120,11 @@ namespace trnservice.Services
             {
                 FileDownloadName = fileName + dateTime + ".csv"
             };
+        }
+
+        private string RawString(string input)
+        {
+            return Regex.Replace(input, "[^a-zA-Z]", "").ToLower();
         }
     }
 }

@@ -54,7 +54,7 @@ namespace trnservice.Services
             else
             {
                 // If not found, print the First Name, Middle Name, Last Name, DOB, Gender and "NOT FOUND"
-                sb.AppendLine(string.Format("{0},{1},{2},{3},{4},{5}", trnDTO.FirstName, trnDTO.MiddleName, trnDTO.LastName, trnDTO.DateOfBirth, trnDTO.Gender, "NOT FOUND"));
+                sb.AppendLine(string.Format("{0},{1},{2},{3},{4},{5}", trnDTO.FirstName, trnDTO.MiddleName, trnDTO.LastName, trnDTO.DateOfBirth, trnDTO.Gender, "TRN MISMATCH"));
             }
 
             return GenerateTRNResponseFile(sb, ltrn+"_TRN_Result_");
@@ -70,7 +70,9 @@ namespace trnservice.Services
 
             using (var reader = new StreamReader(formFile.OpenReadStream()))
             {
-                while(reader.Peek() >= 0)
+                // Rewrite Headers
+                sb.AppendLine(reader.ReadLine() + ", TRN STATUS");
+                while(reader.Peek() >= 1)
                 {
                     string line = reader.ReadLine();
 
@@ -87,23 +89,24 @@ namespace trnservice.Services
                     }
 
                     // If Gender is not one character, format to match convention of single character
-                    if(ltrn[4].Length > 1)
+                    if(ltrn[10].Length > 1)
                     {
-                        ltrn[4] = ltrn[4].Substring(0, 1);
+                        ltrn[10] = ltrn[10].Substring(0, 1);
                     }
 
                     var objtrn = obj.GetIndividualTrn(int.Parse(ltrn[5]));
                     if (objtrn != null && objtrn.IndividualInfo != null
                         // Assering that names match before returning a positive result
-                        && RawString(ltrn[0]) == RawString(objtrn.IndividualInfo.FirstName)
-                        && RawString(ltrn[2]) == RawString(objtrn.IndividualInfo.LastName)
-                        && RawString(ltrn[4]) == RawString(objtrn.IndividualInfo.GenderType))
+                        && RawString(ltrn[3]) == RawString(objtrn.IndividualInfo.FirstName)
+                        && RawString(ltrn[4]) == RawString(objtrn.IndividualInfo.LastName)
+                        && RawString(ltrn[10]) == RawString(objtrn.IndividualInfo.GenderType))
                     {
-                        sb.AppendLine(string.Format("{0},{1},{2},{3},{4},{5},{6}", line, objtrn.IndividualInfo.FirstName, objtrn.IndividualInfo.MiddleName, objtrn.IndividualInfo.LastName, objtrn.IndividualInfo.BirthDate.Value.ToShortDateString(), objtrn.IndividualInfo.GenderType, objtrn.IndividualInfo.NbrTrn));
+                        //sb.AppendLine(string.Format("{0},{1},{2},{3},{4},{5},{6}", line, objtrn.IndividualInfo.FirstName, objtrn.IndividualInfo.MiddleName, objtrn.IndividualInfo.LastName, objtrn.IndividualInfo.BirthDate.Value.ToShortDateString(), objtrn.IndividualInfo.GenderType, objtrn.IndividualInfo.NbrTrn));
+                        sb.AppendLine(line + ", TRN MATCHED");
                     }
                     else
                     {
-                        sb.AppendLine(line);
+                        sb.AppendLine(line + ", TRN MISMATCHED");
                     }
                 }
             }

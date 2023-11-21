@@ -10,7 +10,7 @@ using trnservice.Services;
 
 namespace trnservice.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = Role.Admin + ", " + Role.User)]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -28,13 +28,12 @@ namespace trnservice.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Index(TrnViewModel trnDTO)
+        public IActionResult Index(TrnSearchRequestViewModel trnDTO)
         {
             if(!ModelState.IsValid)
             {
                 return View("Index", trnDTO);
             }
-            _logger.LogInformation("Initiating process to search for individual TRN");
             // Retreive Memory Stream of the TRN Search results
             return _trnService.SingleTRNValidation(trnDTO);
         }
@@ -45,9 +44,8 @@ namespace trnservice.Controllers
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> Upload(IFormFile file)
+        public IActionResult Upload(IFormFile file)
         {
-            _logger.LogInformation("Initiating process to search for multiple TRN");
             if (file == null || file.Length == 0 || !file.FileName.EndsWith(".csv"))
             {
                 return Content("No csv file selected");

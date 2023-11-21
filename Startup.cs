@@ -4,10 +4,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using trnservice.Services;
 
 namespace trnservice
@@ -25,10 +21,6 @@ namespace trnservice
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-
-            //Add Logger configuration
-            services.AddSingleton(typeof(ILogger), services.BuildServiceProvider()
-                                                        .GetService<ILogger<TRNService>>());
             
             // Add Dependency Injection for Service layer 
             services.AddScoped<ITRNService, TRNService>();
@@ -51,6 +43,12 @@ namespace trnservice
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            // Allows cross domain requests
+            app.UseCors(cors => cors 
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
 
             // Identity
             app.UseAuthentication();

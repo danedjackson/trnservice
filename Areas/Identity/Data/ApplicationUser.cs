@@ -17,5 +17,8 @@ namespace trnservice.Areas.Identity.Data
         [PersonalData]
         [Column(TypeName = "nvarchar(30)")]
         public string LastName { get; set; }
+
+        [Column(TypeName = "bit")]
+        public Boolean isDeleted { get; set; } = false;
     }
 }

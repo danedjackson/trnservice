@@ -20,8 +20,10 @@ namespace trnservice.Controllers
             return View("Login");
         }
 
+
+
         [HttpPost]
-        public async Task<IActionResult> Login(User user)
+        public async Task<IActionResult> Login(UserLoginViewModel user)
         {
             if (!ModelState.IsValid)
             {
@@ -49,5 +51,7 @@ namespace trnservice.Controllers
                 return View("Login");
             }
         }
+
+       
     }
 }

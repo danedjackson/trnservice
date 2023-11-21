@@ -12,16 +12,15 @@ namespace trnservice.Services
 {
     public class TRNService : ITRNService
     {
-        private readonly ILogger _logger;
+        private readonly ILogger<TRNService> _logger;
 
-        public TRNService(ILogger logger)
+        public TRNService(ILogger<TRNService> logger)
         {
             _logger = logger;
         }
 
-        public FileResult SingleTRNValidation(TrnViewModel trnDTO)
+        public FileResult SingleTRNValidation(TrnSearchRequestViewModel trnDTO)
         {
-            _logger.LogInformation("Is this null? "+ trnDTO.FirstName);
             string ltrn = trnDTO.Trn;
             ServiceReference1.MLSSServicesTRNClient obj = new ServiceReference1.MLSSServicesTRNClient();
 

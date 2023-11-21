@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace trnservice.Models
 {
-    public class TrnViewModel
+    public class TrnSearchRequestViewModel
     {
         [Required(ErrorMessage = "First Name is required.")]
         public string FirstName { get; set; }

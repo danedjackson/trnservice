@@ -56,6 +56,8 @@
                                             </div>
                                             <a class="text-primary fw-bold" asp-page="./ForgotPassword">Forgot Password ?</a>
                                         </div>
+                                        
+                                            <div>@Html.ValidationSummary(true, "", new { @class = "text-danger" })</div>
                                         <button type="submit" class="btn btn-primary w-100 fs-4 mb-4 rounded-2">Sign In</button>
                                     </form>
                                 </div>

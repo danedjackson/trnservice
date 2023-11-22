@@ -69,7 +69,13 @@ namespace trnservice.Controllers
             {
                 return View(user);
             }
-            IdentityResult result = await userManager.UpdateAsync(user);
+            ApplicationUser userDbRecord = await userManager.FindByIdAsync(user.Id);
+            userDbRecord.FirstName = user.FirstName;
+            userDbRecord.LastName = user.LastName;
+            userDbRecord.Email = user.Email;
+            userDbRecord.UserName = user.Email;
+
+            IdentityResult result = await userManager.UpdateAsync(userDbRecord);
             if (!result.Succeeded)
             {
                 Errors(result);
@@ -104,7 +110,7 @@ namespace trnservice.Controllers
                 ModelState.AddModelError("", error.Description);
             }
         }
-
+        
         private IQueryable<ApplicationUser> FindNonDeletedUsers()
         {
             return userManager.Users.Where(user => user.isDeleted == false);

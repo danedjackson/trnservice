@@ -27,7 +27,7 @@ namespace trnservice.Services
             StringBuilder sb = new StringBuilder();
 
             // Add headings to String Builder
-            sb.AppendLine("FIRSTNAME,MIDDLENAME,LASTNAME,DOB,GENDER,TRN");
+            sb.AppendLine("FIRSTNAME,MIDDLENAME,LASTNAME,DOB,GENDER,TRN,TRN STATUS");
 
             string v = ltrn.ToString();
             // Converted to char away to check if all characters are numeric
@@ -48,12 +48,12 @@ namespace trnservice.Services
                 && RawString(trnDTO.Gender) == RawString(objtrn.IndividualInfo.GenderType))
             {
                 // If found, print the First Name, Middle Name, Last Name, DOB, Gender, and TRN
-                sb.AppendLine(string.Format("{0},{1},{2},{3},{4},{5}", objtrn.IndividualInfo.FirstName, objtrn.IndividualInfo.MiddleName, objtrn.IndividualInfo.LastName, objtrn.IndividualInfo.BirthDate.Value.ToShortDateString(), objtrn.IndividualInfo.GenderType, objtrn.IndividualInfo.NbrTrn));
+                sb.AppendLine(string.Format("{0},{1},{2},{3},{4},{5},{6}", objtrn.IndividualInfo.FirstName, objtrn.IndividualInfo.MiddleName, objtrn.IndividualInfo.LastName, objtrn.IndividualInfo.BirthDate.Value.ToShortDateString(), objtrn.IndividualInfo.GenderType, objtrn.IndividualInfo.NbrTrn, "TRN MATCHED"));
             }
             else
             {
                 // If not found, print the First Name, Middle Name, Last Name, DOB, Gender and "NOT FOUND"
-                sb.AppendLine(string.Format("{0},{1},{2},{3},{4},{5}", trnDTO.FirstName, trnDTO.MiddleName, trnDTO.LastName, trnDTO.DateOfBirth, trnDTO.Gender, "TRN MISMATCH"));
+                sb.AppendLine(string.Format("{0},{1},{2},{3},{4},{5},{6}", trnDTO.FirstName, trnDTO.MiddleName, trnDTO.LastName, trnDTO.DateOfBirth, trnDTO.Gender, trnDTO.Trn, "TRN MISMATCH"));
             }
 
             return GenerateTRNResponseFile(sb, ltrn+"_TRN_Result_");

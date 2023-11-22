@@ -4,62 +4,6 @@
     ViewData["Title"] = "TRN Validation Service";
 }
 
-@*<h1>TRN Validation Service</h1>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Index">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="FirstName" class="control-label">First Name</label>
-                <input asp-for="FirstName" class="form-control" />
-                <span asp-validation-for="FirstName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="MiddleName" class="control-label">Middle Name</label>
-                <input asp-for="MiddleName" class="form-control" />
-                <span asp-validation-for="MiddleName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="LastName" class="control-label">Last Name</label>
-                <input asp-for="LastName" class="form-control" />
-                <span asp-validation-for="LastName" class="text-danger"></span>
-            </div>
-            <div class="form-group" style="display: flex; flex-direction: column;">
-                <label asp-for="Gender">Gender</label>
-                <select asp-for="Gender" name="Gender" class="styled-select">
-                    <option value="" selected disabled hidden>Select an option</option>
-                    <option value="F">Female</option>
-                    <option value="M">Male</option>
-                </select>
-                <span asp-validation-for="Gender" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DateOfBirth" class="control-label"></label>
-                <input asp-for="DateOfBirth" class="form-control" type="date"/>
-                <span asp-validation-for="DateOfBirth" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Trn" class="control-label"></label>
-                <input asp-for="Trn" class="form-control" />
-                <span asp-validation-for="Trn" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Search" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
-
-<div>
-    <a asp-action="Upload">Upload .csv File</a>
-</div>
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}*@
-
-
 <h5 class="card-title fw-semibold mb-4">Individual TRN Validation Form</h5>
 <form asp-action="Index">
     <div class="mb-3">

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading.Tasks;
 using trnservice.Areas.Identity.Data;
 using trnservice.Models;
@@ -59,7 +60,7 @@ namespace trnservice.Controllers
             List<ApplicationUser> nonMembers = new List<ApplicationUser>();
 
             // Check if the user is already in the role specified
-            foreach (ApplicationUser user in userManager.Users)
+            foreach (ApplicationUser user in userManager.Users.Where(user=>user.isDeleted == false))
             {
                 // Append to Member or NonMember List depending on user being found in role or not
                 var memberOrNonMemberList = await userManager.IsInRoleAsync(user, role.Name) ? members : nonMembers;
@@ -83,23 +84,27 @@ namespace trnservice.Controllers
                 // If AddIds is not empty, add role to users
                 foreach (string userId in roleModification.AddIds ?? new string[] { })
                 {
-                    ApplicationUser user = await userManager.FindByIdAsync(userId);
+                    ApplicationUser user = await FindNonDeletedUser(userId);
                     if (null != user)
                     {
                         result = await userManager.AddToRoleAsync(user, roleModification.RoleName);
                         if (!result.Succeeded)
+                        {
                             Errors(result);
+                        }
                     }
                 }
                 // If DeleteIds is not empty, remove role from users
                 foreach (string userId in roleModification.DeleteIds ?? new string[] { })
                 {
-                    ApplicationUser user = await userManager.FindByIdAsync(userId);
+                    ApplicationUser user = await FindNonDeletedUser(userId);
                     if (null != user  )
                     {
                         result = await userManager.RemoveFromRoleAsync(user, roleModification.RoleName);
                         if (!result.Succeeded)
+                        {
                             Errors(result);
+                        }
                     }
                 }
             }
@@ -143,6 +148,15 @@ namespace trnservice.Controllers
             {
                 ModelState.AddModelError("", error.Description);
             }
+        }
+        private async Task<ApplicationUser> FindNonDeletedUser(string id)
+        {
+            ApplicationUser user = await userManager.FindByIdAsync(id);
+            if(user.isDeleted)
+            {
+                return null;
+            }
+            return user;
         }
     }
 }

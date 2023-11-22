@@ -3,25 +3,6 @@
     ViewData["Title"] = "TRN Validation Service";
 }
 
-@*<h1>TRN Validation Service</h1>
-    <hr />
-    <div class="row">
-        <div class="col-md-4">
-            <form method="post" enctype="multipart/form-data" asp-action="Upload">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <label class="control-label">Upload CSV File</label>
-                <input type="file" name="file" accept=".csv" style="margin-bottom: 10px;"/>
-                <div class="form-group">
-                    <input type="submit" value="Upload" class="btn btn-primary" />
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div>
-        <a asp-action="Index">Enter Individual information</a>
-    </div>*@
-
 <h5 class="card-title fw-semibold mb-4">Bulk TRN Validation</h5>
 <form method="post" enctype="multipart/form-data" asp-action="Upload">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>

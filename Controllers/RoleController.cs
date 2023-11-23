@@ -15,18 +15,18 @@ namespace trnservice.Controllers
     [Authorize(Roles = Role.Admin)]
     public class RoleController : Controller
     {
-        private readonly RoleManager<IdentityRole> roleManager;
-        private readonly UserManager<ApplicationUser> userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         public RoleController(RoleManager<IdentityRole> roleManager, 
             UserManager<ApplicationUser> userManager)
         {
-            this.roleManager = roleManager;
-            this.userManager = userManager;
+            _roleManager = roleManager;
+            _userManager = userManager;
         }
 
         public ViewResult Index()
         {
-            return View(roleManager.Roles);
+            return View(_roleManager.Roles);
         }
 
         public IActionResult Create()
@@ -39,7 +39,7 @@ namespace trnservice.Controllers
         {
             if (ModelState.IsValid)
             {
-                IdentityResult result = await roleManager.CreateAsync(new IdentityRole(name));
+                IdentityResult result = await _roleManager.CreateAsync(new IdentityRole(name));
                 if (result.Succeeded)
                 {
                     return RedirectToAction("Index");
@@ -55,16 +55,21 @@ namespace trnservice.Controllers
         // Fetch members ad non-members of a selected Role
         public async Task<IActionResult> Update(string id)
         {
-            IdentityRole role = await roleManager.FindByIdAsync(id);
+            IdentityRole role = await _roleManager.FindByIdAsync(id);
             List<ApplicationUser> members = new List<ApplicationUser>();
             List<ApplicationUser> nonMembers = new List<ApplicationUser>();
 
             // Check if the user is already in the role specified
-            foreach (ApplicationUser user in userManager.Users.Where(user=>user.isDeleted == false))
+            foreach (ApplicationUser user in _userManager.Users.Where(user => user.isDeleted == false))
             {
-                // Append to Member or NonMember List depending on user being found in role or not
-                var memberOrNonMemberList = await userManager.IsInRoleAsync(user, role.Name) ? members : nonMembers;
-                memberOrNonMemberList.Add(user);
+                if (await _userManager.IsInRoleAsync(user, role.Name))
+                {
+                    members.Add(user);
+                }
+                else
+                {
+                    nonMembers.Add(user);
+                }
             }
             return View(new RoleUserDetails
             {
@@ -87,7 +92,7 @@ namespace trnservice.Controllers
                     ApplicationUser user = await FindNonDeletedUser(userId);
                     if (null != user)
                     {
-                        result = await userManager.AddToRoleAsync(user, roleModification.RoleName);
+                        result = await _userManager.AddToRoleAsync(user, roleModification.RoleName);
                         if (!result.Succeeded)
                         {
                             Errors(result);
@@ -100,7 +105,7 @@ namespace trnservice.Controllers
                     ApplicationUser user = await FindNonDeletedUser(userId);
                     if (null != user  )
                     {
-                        result = await userManager.RemoveFromRoleAsync(user, roleModification.RoleName);
+                        result = await _userManager.RemoveFromRoleAsync(user, roleModification.RoleName);
                         if (!result.Succeeded)
                         {
                             Errors(result);
@@ -111,7 +116,7 @@ namespace trnservice.Controllers
 
             if (ModelState.IsValid)
             {
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index");
             }
             else
             {
@@ -122,10 +127,10 @@ namespace trnservice.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(string id)
         {
-            IdentityRole role = await roleManager.FindByIdAsync(id);
+            IdentityRole role = await _roleManager.FindByIdAsync(id);
             if (null != role)
             {
-                IdentityResult result = await roleManager.DeleteAsync(role);
+                IdentityResult result = await _roleManager.DeleteAsync(role);
                 if (result.Succeeded)
                 {
                     return RedirectToAction("Index");
@@ -139,7 +144,7 @@ namespace trnservice.Controllers
             {
                 ModelState.AddModelError("", "No role found");
             }
-            return View("Index", roleManager.Roles);
+            return View("Index", _roleManager.Roles);
         }
 
         private void Errors(IdentityResult result)
@@ -151,7 +156,7 @@ namespace trnservice.Controllers
         }
         private async Task<ApplicationUser> FindNonDeletedUser(string id)
         {
-            ApplicationUser user = await userManager.FindByIdAsync(id);
+            ApplicationUser user = await _userManager.FindByIdAsync(id);
             if(user.isDeleted)
             {
                 return null;

@@ -14,11 +14,11 @@ namespace trnservice.Controllers
     [Authorize(Roles = Role.Admin)]
     public class UserController : Controller
     {
-        private readonly UserManager<ApplicationUser> userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
         public UserController(UserManager<ApplicationUser> userManager)
         {
-            this.userManager = userManager;
+            _userManager = userManager;
         }
         public IActionResult Index()
         {
@@ -36,7 +36,7 @@ namespace trnservice.Controllers
                 // Checking if user exists
                 // If user exists, assume deleted flag is true.
                 // change the deleted flag to false, if not, continue creation
-                ApplicationUser userResult = await userManager.FindByEmailAsync(userModel.Email);
+                ApplicationUser userResult = await _userManager.FindByEmailAsync(userModel.Email);
                 if(null != userResult && userResult.isDeleted)
                 {
                     userResult.isDeleted = false;
@@ -44,12 +44,12 @@ namespace trnservice.Controllers
                     userResult.LastName = userModel.LastName;
                     userResult.Email = userModel.Email;
                     userResult.UserName = userModel.Email;
-
+                    userResult.Password = userModel.Password;
                     // Setting new password from model
-                    var token = await userManager.GeneratePasswordResetTokenAsync(userResult);
-                    _ = await userManager.ResetPasswordAsync(userResult, token, userModel.Password);
+                    await UpdatePassword(userResult);
+
                     // Updating the user with the newly entered data
-                    IdentityResult identityResult = await userManager.UpdateAsync(userResult);
+                    IdentityResult identityResult = await _userManager.UpdateAsync(userResult);
                     if(identityResult.Succeeded)
                     {
                         return RedirectToAction("Index");
@@ -69,7 +69,7 @@ namespace trnservice.Controllers
                     UserName = userModel.Email
                 };
 
-                IdentityResult result = await userManager.CreateAsync(user, userModel.Password);
+                IdentityResult result = await _userManager.CreateAsync(user, userModel.Password);
                 if (result.Succeeded)
                 {
                     return RedirectToAction("Index");
@@ -84,7 +84,7 @@ namespace trnservice.Controllers
 
         public async Task<IActionResult> Update(string id)
         {
-            ApplicationUser result = await userManager.FindByIdAsync(id);
+            ApplicationUser result = await _userManager.FindByIdAsync(id);
 
             return View(result);
         }
@@ -96,31 +96,36 @@ namespace trnservice.Controllers
             {
                 return View(user);
             }
-            ApplicationUser userDbRecord = await userManager.FindByIdAsync(user.Id);
+            ApplicationUser userDbRecord = await _userManager.FindByIdAsync(user.Id);
             userDbRecord.FirstName = user.FirstName;
             userDbRecord.LastName = user.LastName;
             userDbRecord.Email = user.Email;
             userDbRecord.UserName = user.Email;
+            if(null != user.Password)
+            {
+                userDbRecord.Password = user.Password;
+                await UpdatePassword(userDbRecord);
+            }
 
-            IdentityResult result = await userManager.UpdateAsync(userDbRecord);
+            IdentityResult result = await _userManager.UpdateAsync(userDbRecord);
             if (!result.Succeeded)
             {
                 Errors(result);
             }
-            return View(user);
+            return View("Index", FindNonDeletedUsers());
         }
 
         [HttpPost]
         public async Task<IActionResult> Delete(string id)
         {
-            ApplicationUser user = await userManager.FindByIdAsync(id);
+            ApplicationUser user = await _userManager.FindByIdAsync(id);
 
             if(null == user)
             {
                 return View("Index");
             }
             user.isDeleted = true;
-            IdentityResult result =await userManager.UpdateAsync(user);
+            IdentityResult result =await _userManager.UpdateAsync(user);
 
             if(!result.Succeeded)
             {
@@ -140,7 +145,13 @@ namespace trnservice.Controllers
         
         private IQueryable<ApplicationUser> FindNonDeletedUsers()
         {
-            return userManager.Users.Where(user => user.isDeleted == false);
+            return _userManager.Users.Where(user => user.isDeleted == false);
+        }
+        private async Task UpdatePassword(ApplicationUser applicationUser)
+        {
+            // Setting new password from model
+            var token = await _userManager.GeneratePasswordResetTokenAsync(applicationUser);
+            _ = await _userManager.ResetPasswordAsync(applicationUser, token, applicationUser.Password);
         }
     }
 }

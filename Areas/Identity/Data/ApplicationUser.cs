@@ -20,5 +20,8 @@ namespace trnservice.Areas.Identity.Data
 
         [Column(TypeName = "bit")]
         public Boolean isDeleted { get; set; } = false;
+        // Field only used to aid in password changes
+        [NotMapped]
+        public string Password { get; set; }
     }
 }

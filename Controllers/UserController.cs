@@ -33,6 +33,34 @@ namespace trnservice.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Checking if user exists
+                // If user exists, assume deleted flag is true.
+                // change the deleted flag to false, if not, continue creation
+                ApplicationUser userResult = await userManager.FindByEmailAsync(userModel.Email);
+                if(null != userResult && userResult.isDeleted)
+                {
+                    userResult.isDeleted = false;
+                    userResult.FirstName = userModel.FirstName;
+                    userResult.LastName = userModel.LastName;
+                    userResult.Email = userModel.Email;
+                    userResult.UserName = userModel.Email;
+
+                    // Setting new password from model
+                    var token = await userManager.GeneratePasswordResetTokenAsync(userResult);
+                    _ = await userManager.ResetPasswordAsync(userResult, token, userModel.Password);
+                    // Updating the user with the newly entered data
+                    IdentityResult identityResult = await userManager.UpdateAsync(userResult);
+                    if(identityResult.Succeeded)
+                    {
+                        return RedirectToAction("Index");
+                    }
+                    else
+                    {
+                        Errors(identityResult);
+                        return View();
+                    }
+                }
+                // Continue Creation if no deleted user is found
                 ApplicationUser user = new ApplicationUser
                 {
                     FirstName = userModel.FirstName,
@@ -40,7 +68,6 @@ namespace trnservice.Controllers
                     Email = userModel.Email,
                     UserName = userModel.Email
                 };
-
 
                 IdentityResult result = await userManager.CreateAsync(user, userModel.Password);
                 if (result.Succeeded)

@@ -37,19 +37,19 @@
                     <nav class="sidebar-nav">
                         <ul id="sidebarnav" class="mb-4 pb-2">
                             @*<li class="nav-small-cap">
-                            <i class="ti ti-dots nav-small-cap-icon fs-5"></i>
-                            <span class="hide-menu">Home</span>
-                        </li>
-                        <li class="sidebar-item">
-                            <a class="sidebar-link sidebar-link primary-hover-bg"
-                               href="./index.html"
-                               aria-expanded="false">
-                                <span class="aside-icon p-2 bg-light-primary rounded-3">
-                                    <i class="ti ti-layout-dashboard fs-7 text-primary"></i>
-                                </span>
-                                <span class="hide-menu ms-2 ps-1">Dashboard</span>
-                            </a>
-                        </li>*@
+            <i class="ti ti-dots nav-small-cap-icon fs-5"></i>
+            <span class="hide-menu">Home</span>
+        </li>
+        <li class="sidebar-item">
+            <a class="sidebar-link sidebar-link primary-hover-bg"
+               href="./index.html"
+               aria-expanded="false">
+                <span class="aside-icon p-2 bg-light-primary rounded-3">
+                    <i class="ti ti-layout-dashboard fs-7 text-primary"></i>
+                </span>
+                <span class="hide-menu ms-2 ps-1">Dashboard</span>
+            </a>
+        </li>*@
                             <li class="nav-small-cap">
                                 <i class="ti ti-dots nav-small-cap-icon fs-5"></i>
                                 <span class="hide-menu">Services</span>
@@ -103,6 +103,19 @@
                                     </span>
                                     <span class="hide-menu ms-2 ps-1">Manage Users</span>
                                 </a>
+                            </li>
+
+                            <!-- Logout -->
+                            <li class="nav-small-cap">
+                                <i class="ti ti-dots nav-small-cap-icon fs-5"></i>
+                                <span class="hide-menu"></span>
+                            </li>
+                            <li class="sidebar-item">
+                                <div class="message-body">
+                                    <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                                        <button class="btn btn btn-danger m-1 mx-3 mt-2 d-block shadow-none">Logout</button>
+                                    </form>
+                                </div>
                             </li>
                             <!-- Admin Section End -->
                         </ul>

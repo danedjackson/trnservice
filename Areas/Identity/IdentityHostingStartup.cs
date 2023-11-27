@@ -29,6 +29,8 @@ namespace trnservice.Areas.Identity
                     options.Password.RequireDigit = false;
                     options.Password.RequireUppercase = false;
                     options.Password.RequireNonAlphanumeric = false;
+                    options.Lockout.MaxFailedAccessAttempts = 3;
+                    options.Lockout.DefaultLockoutTimeSpan = new TimeSpan(12, 0, 0);
                 })
                     .AddRoles<IdentityRole>()
                     .AddEntityFrameworkStores<AuthDbContext>();

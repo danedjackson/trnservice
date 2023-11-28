@@ -25,6 +25,7 @@
 
     <div class="form-group">
         <label asp-for="@Model.UserName">Username</label>
+        <div id="usernameHelp" class="form-text">Username format: Firstname.LastnameMiddleinitial<br />Example: dane.jacksond</div>
         <input asp-for="@Model.UserName" class="form-control" />
         <span asp-validation-for="@Model.UserName" class="text-danger"></span>
     </div>
@@ -46,9 +47,10 @@
     </div>
     <div>@Html.ValidationSummary(true, "", new { @class = "text-danger" })</div>
 
-
-    <a asp-action="Index" class="btn btn-secondary">Back</a>
-    <button type="submit" class="btn btn-primary">Register</button>
+    <div class="col-md-4" style="margin-top:25px;">
+        <a asp-action="Index" class="btn btn-secondary">Back</a>
+        <button type="submit" class="btn btn-primary">Register</button>
+    </div>
 </form>
 <script src="~/libs/jquery/dist/jquery.min.js"></script>
 <script src="~/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

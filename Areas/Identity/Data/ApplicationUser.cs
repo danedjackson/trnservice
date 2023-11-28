@@ -11,18 +11,18 @@ namespace trnservice.Areas.Identity.Data
     public class ApplicationUser : IdentityUser
     {
         [PersonalData]
-        [Column(TypeName = "nvarchar(30)")]
+        [Column(TypeName = "varchar(30)")]
         public string FirstName { get; set; }
 
         [PersonalData]
-        [Column(TypeName = "nvarchar(30)")]
+        [Column(TypeName = "varchar(30)")]
         public string LastName { get; set; }
 
         //[Column(TypeName = "sysdatetime()")]
         //public DateTime LastLoggedIn { get; set; }
 
         [Column(TypeName = "bit")]
-        public Boolean isDeleted { get; set; } = false;
+        public Boolean IsActive { get; set; } = true;
         // Field only used to aid in password changes
         [NotMapped]
         public string Password { get; set; }

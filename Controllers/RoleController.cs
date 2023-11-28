@@ -60,7 +60,7 @@ namespace trnservice.Controllers
             List<ApplicationUser> nonMembers = new List<ApplicationUser>();
 
             // Check if the user is already in the role specified
-            foreach (ApplicationUser user in _userManager.Users.Where(user => user.isDeleted == false))
+            foreach (ApplicationUser user in _userManager.Users.Where(user => user.IsActive == true))
             {
                 if (await _userManager.IsInRoleAsync(user, role.Name))
                 {
@@ -157,7 +157,7 @@ namespace trnservice.Controllers
         private async Task<ApplicationUser> FindNonDeletedUser(string id)
         {
             ApplicationUser user = await _userManager.FindByIdAsync(id);
-            if(user.isDeleted)
+            if(!user.IsActive)
             {
                 return null;
             }

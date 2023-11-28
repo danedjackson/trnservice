@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using trnservice.Data;
 
 namespace trnservice.Migrations
 {
     [DbContext(typeof(AuthDbContext))]
-    partial class AuthDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231128213009_AddPermissions")]
+    partial class AddPermissions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -26,10 +28,6 @@ namespace trnservice.Migrations
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
@@ -48,8 +46,6 @@ namespace trnservice.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles");
-
-                    b.HasDiscriminator<string>("Discriminator").HasValue("IdentityRole");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -160,43 +156,6 @@ namespace trnservice.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("trnservice.Areas.Identity.Data.ApplicationPermission", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("varchar(30)");
-
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("datetime");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("varchar(50)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Permissions");
-                });
-
-            modelBuilder.Entity("trnservice.Areas.Identity.Data.ApplicationRolePermissions", b =>
-                {
-                    b.Property<int>("PermissionId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("RoleId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("PermissionId", "RoleId");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("RolePermissions");
-                });
-
             modelBuilder.Entity("trnservice.Areas.Identity.Data.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
@@ -271,20 +230,27 @@ namespace trnservice.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("trnservice.Areas.Identity.Data.ApplicationRole", b =>
+            modelBuilder.Entity("trnservice.Areas.Identity.Data.Permission", b =>
                 {
-                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityRole");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime");
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
 
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("varchar(30)");
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(50)");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                    b.Property<string>("RoleId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasDiscriminator().HasValue("ApplicationRole");
+                    b.HasKey("Id");
+
+                    b.ToTable("Permissions");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -334,21 +300,6 @@ namespace trnservice.Migrations
                     b.HasOne("trnservice.Areas.Identity.Data.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("trnservice.Areas.Identity.Data.ApplicationRolePermissions", b =>
-                {
-                    b.HasOne("trnservice.Areas.Identity.Data.ApplicationPermission", "Permission")
-                        .WithMany("RolePermissions")
-                        .HasForeignKey("PermissionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("trnservice.Areas.Identity.Data.ApplicationRole", "Role")
-                        .WithMany("RolePermissions")
-                        .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

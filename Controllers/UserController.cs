@@ -37,9 +37,9 @@ namespace trnservice.Controllers
                 // If user exists, assume deleted flag is true.
                 // change the deleted flag to false, if not, continue creation
                 ApplicationUser userResult = await _userManager.FindByNameAsync(userModel.UserName);
-                if(null != userResult && userResult.isDeleted)
+                if(null != userResult && !userResult.IsActive)
                 {
-                    userResult.isDeleted = false;
+                    userResult.IsActive = true;
                     userResult.FirstName = userModel.FirstName;
                     userResult.LastName = userModel.LastName;
                     userResult.UserName = userModel.UserName;
@@ -122,7 +122,7 @@ namespace trnservice.Controllers
             {
                 return View("Index");
             }
-            user.isDeleted = true;
+            user.IsActive = false;
             IdentityResult result =await _userManager.UpdateAsync(user);
 
             if(!result.Succeeded)
@@ -143,7 +143,7 @@ namespace trnservice.Controllers
         
         private IQueryable<ApplicationUser> FindNonDeletedUsers()
         {
-            return _userManager.Users.Where(user => user.isDeleted == false);
+            return _userManager.Users.Where(user => user.IsActive == true);
         }
         private async Task UpdatePassword(ApplicationUser applicationUser)
         {

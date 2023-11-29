@@ -3,12 +3,16 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using trnservice.Areas.Identity.Data;
+using trnservice.Data;
 using trnservice.Models;
+using trnservice.Services.Authorize;
 
 namespace trnservice.Controllers
 {
@@ -26,7 +30,7 @@ namespace trnservice.Controllers
 
         public ViewResult Index()
         {
-            return View(_roleManager.Roles);
+            return View(_roleManager.Roles.Where(role => role.IsActive));
         }
 
         public IActionResult Create()
@@ -35,6 +39,7 @@ namespace trnservice.Controllers
         }
 
         [HttpPost]
+        [HasPermission(Permissions.Enum.CanDoRoleManagement)]
         public async Task<IActionResult> Create([Required] string name)
         {
             if (ModelState.IsValid)
@@ -42,7 +47,7 @@ namespace trnservice.Controllers
                 IdentityResult result = await _roleManager.CreateAsync(new ApplicationRole { 
                     Name = name,
                     CreatedAt = System.DateTime.Now,
-                    CreatedBy = "Admin",
+                    CreatedBy = User.Identity.Name,
                     IsActive = true
                 });
                 if (result.Succeeded)
@@ -54,7 +59,7 @@ namespace trnservice.Controllers
                     Errors(result);
                 }
             }
-            return View(name);
+            return View("Create");
         }
 
         // Fetch members ad non-members of a selected Role
@@ -135,7 +140,8 @@ namespace trnservice.Controllers
             ApplicationRole role = await _roleManager.FindByIdAsync(id);
             if (null != role)
             {
-                IdentityResult result = await _roleManager.DeleteAsync(role);
+                role.IsActive = false;
+                IdentityResult result = await _roleManager.UpdateAsync(role);
                 if (result.Succeeded)
                 {
                     return RedirectToAction("Index");

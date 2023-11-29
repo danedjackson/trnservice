@@ -7,6 +7,7 @@ using System.IO;
 using System.Threading.Tasks;
 using trnservice.Models;
 using trnservice.Services;
+using trnservice.Services.Authorize;
 
 namespace trnservice.Controllers
 {
@@ -22,6 +23,7 @@ namespace trnservice.Controllers
             _trnService = trnService;
         }
 
+        [HasPermission(Permissions.Enum.CanDoIndividualQuery)]
         public IActionResult Index()
         {
             return View();
@@ -39,6 +41,7 @@ namespace trnservice.Controllers
         }
 
 
+        [HasPermission(Permissions.Enum.CanDoBulkQuery)]
         public IActionResult Upload()
         {
             return View();

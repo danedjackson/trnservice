@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace trnservice.Areas.Identity.Data
@@ -19,6 +20,8 @@ namespace trnservice.Areas.Identity.Data
 
         [Column(TypeName = "datetime")]
         public DateTime DateCreated { get; set; }
+
+        [JsonIgnore]
         public ICollection<ApplicationRolePermissions> RolePermissions { get; set; }
     }
 }

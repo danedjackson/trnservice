@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -6,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using trnservice.Services;
+using trnservice.Services.Authorize;
 
 namespace trnservice
 {
@@ -25,6 +27,12 @@ namespace trnservice
             
             // Add Dependency Injection for Service layer 
             services.AddScoped<ITRNService, TRNService>();
+            // DI for custom HasPermission Annotation
+            services.AddScoped<IPermissionService, PermissionService>();
+            services.AddHttpContextAccessor();
+            services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
+            services.AddSingleton<IAuthorizationPolicyProvider, 
+                PermissionAuthorizationPolicyProvider>();
             // Identity
             services.AddRazorPages();
         }

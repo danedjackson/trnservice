@@ -1,13 +1,16 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using trnservice.Areas.Identity.Data;
 using trnservice.Models;
+using trnservice.Services.Authorize;
 
 namespace trnservice.Controllers
 {
@@ -15,19 +18,25 @@ namespace trnservice.Controllers
     public class UserController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
-
-        public UserController(UserManager<ApplicationUser> userManager)
+        private readonly RoleManager<ApplicationRole> _roleManager;
+        public UserController(UserManager<ApplicationUser> userManager,
+            RoleManager<ApplicationRole> roleManager)
         {
             _userManager = userManager;
+            _roleManager = roleManager;
         }
+
         public IActionResult Index()
         {
             return View(FindNonDeletedUsers());
         }
+
+        [HasPermission(Permissions.Enum.CanDoUserManagement)]
         public IActionResult Create()
         {
             return View();
         }
+
         [HttpPost]
         public async Task<IActionResult> Create([Required] UserRegisterViewModel userModel)
         {

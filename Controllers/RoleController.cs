@@ -15,9 +15,9 @@ namespace trnservice.Controllers
     [Authorize(Roles = Role.Admin)]
     public class RoleController : Controller
     {
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly UserManager<ApplicationUser> _userManager;
-        public RoleController(RoleManager<IdentityRole> roleManager, 
+        public RoleController(RoleManager<ApplicationRole> roleManager, 
             UserManager<ApplicationUser> userManager)
         {
             _roleManager = roleManager;
@@ -39,7 +39,12 @@ namespace trnservice.Controllers
         {
             if (ModelState.IsValid)
             {
-                IdentityResult result = await _roleManager.CreateAsync(new IdentityRole(name));
+                IdentityResult result = await _roleManager.CreateAsync(new ApplicationRole { 
+                    Name = name,
+                    CreatedAt = System.DateTime.Now,
+                    CreatedBy = "Admin",
+                    IsActive = true
+                });
                 if (result.Succeeded)
                 {
                     return RedirectToAction("Index");
@@ -127,7 +132,7 @@ namespace trnservice.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(string id)
         {
-            IdentityRole role = await _roleManager.FindByIdAsync(id);
+            ApplicationRole role = await _roleManager.FindByIdAsync(id);
             if (null != role)
             {
                 IdentityResult result = await _roleManager.DeleteAsync(role);

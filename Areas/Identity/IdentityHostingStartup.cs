@@ -32,7 +32,7 @@ namespace trnservice.Areas.Identity
                     options.Lockout.MaxFailedAccessAttempts = 3;
                     options.Lockout.DefaultLockoutTimeSpan = new TimeSpan(12, 0, 0);
                 })
-                    .AddRoles<IdentityRole>()
+                    .AddRoles<ApplicationRole>()
                     .AddEntityFrameworkStores<AuthDbContext>();
             });
         }

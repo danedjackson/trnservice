@@ -16,5 +16,7 @@ namespace trnservice.Models
         public DateTime DateOfBirth { get; set; }
         [Required(ErrorMessage = "TRN is required.")]
         public string Trn {get; set;}
+        public string Message { get; set; }
+        public bool IsMatched { get; set; } = false;
     }
 }

@@ -1,7 +1,19 @@
-﻿@model string
+﻿@model RoleCreationDetails
 @{
     ViewData["Title"] = "CREATE ROLE";
 }
+
+<style>
+    .checkbox-group {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .checkbox-group .form-group {
+        margin-right: 20px; /* Adjust the spacing between checkboxes */
+    }
+</style>
+
 
 <h5 class="card-title fw-semibold mb-4">Create a Role</h5>
 <div class="card">
@@ -9,15 +21,30 @@
         <div asp-validation-summary="All" class="text-danger"></div>
 
         <form asp-action="Create" method="post">
-            <div class="form-group">
-                <label for="name">Name:</label>
-                <input name="name" class="form-control" />
+            <div class="mb-3">
+                <label asp-for="@Model.Name">Name:</label>
+                <input asp-for="@Model.Name" class="form-control" />
             </div>
-            <a asp-action="Index" class="btn btn-secondary">Back</a>
-            <button type="submit" class="btn btn-primary">Create</button>
+            <div class="mb-3">
+                <label asp-for="@Model.SelectedPermissions">Select Permissions:</label>
+                <div class="checkbox-group">
+                    @foreach (var permission in Model.ExistingPermissions)
+                    {
+                        <div class="form-group">
+                            <label asp-for="@permission">@permission</label>
+                            <input type="checkbox" name="SelectedPermissions" value="@permission">
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="mb-3">
+                <a asp-action="Index" class="btn btn-secondary">Back</a>
+                <button type="submit" class="btn btn-primary">Create</button>
+            </div>
         </form>
     </div>
 </div>
+
 <script src="~/libs/jquery/dist/jquery.min.js"></script>
 <script src="~/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/sidebarmenu.js"></script>

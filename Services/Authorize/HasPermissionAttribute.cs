@@ -9,7 +9,7 @@ namespace trnservice.Services.Authorize
 {
     public class HasPermissionAttribute : AuthorizeAttribute
     {
-        public HasPermissionAttribute(Permissions.Enum permission)
+        public HasPermissionAttribute(Permissions permission)
             :base(policy: permission.ToString())
         {
 

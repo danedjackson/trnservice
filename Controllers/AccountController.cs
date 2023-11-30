@@ -22,35 +22,35 @@ namespace trnservice.Controllers
 
 
 
-        [HttpPost]
-        public async Task<IActionResult> Login(UserLoginViewModel user)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View("Login", user);
-            }
-            //var result = await _signInManager.PasswordSignInAsync(user.Username, user.Password, false, lockoutOnFailure: false);
+        //[HttpPost]
+        //public async Task<IActionResult> Login(UserLoginViewModel user)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return View("Login", user);
+        //    }
+        //    //var result = await _signInManager.PasswordSignInAsync(user.Username, user.Password, false, lockoutOnFailure: false);
 
-            var check = await _userManager.FindByNameAsync(user.Username);
+        //    var check = await _userManager.FindByNameAsync(user.Username);
 
-            if(null == check)
-            {
-                return View("Login", user);
-            }
+        //    if(null == check)
+        //    {
+        //        return View("Login", user);
+        //    }
 
-            var result = await _signInManager.PasswordSignInAsync(check, user.Password, false, false);
+        //    var result = await _signInManager.PasswordSignInAsync(check, user.Password, false, false);
 
-            if (result.Succeeded)
-            {
-                // Redirect to a secure page
-                return RedirectToAction("Index", "Home");
-            }
-            else
-            {
-                ModelState.AddModelError(string.Empty, "Invalid login attempt");
-                return View("Login");
-            }
-        }
+        //    if (result.Succeeded)
+        //    {
+        //        // Redirect to a secure page
+        //        return RedirectToAction("Index", "Home");
+        //    }
+        //    else
+        //    {
+        //        ModelState.AddModelError(string.Empty, "Invalid login attempt");
+        //        return View("Login");
+        //    }
+        //}
 
        
     }

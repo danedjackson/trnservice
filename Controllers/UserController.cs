@@ -31,7 +31,7 @@ namespace trnservice.Controllers
             return View(FindNonDeletedUsers());
         }
 
-        [HasPermission(Permissions.Enum.CanDoUserManagement)]
+        [HasPermission(Permissions.CanDoUserManagement)]
         public IActionResult Create()
         {
             return View();
@@ -89,6 +89,7 @@ namespace trnservice.Controllers
             return View(userModel);
         }
 
+        [HasPermission(Permissions.CanDoUserManagement)]
         public async Task<IActionResult> Update(string id)
         {
             ApplicationUser result = await _userManager.FindByIdAsync(id);
@@ -123,6 +124,7 @@ namespace trnservice.Controllers
         }
 
         [HttpPost]
+        [HasPermission(Permissions.CanDoUserManagement)]
         public async Task<IActionResult> Delete(string id)
         {
             ApplicationUser user = await _userManager.FindByIdAsync(id);

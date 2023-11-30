@@ -7,6 +7,6 @@ namespace trnservice.Services.Authorize
 {
     public interface IPermissionService
     {
-        Task<bool> GetPermissionsAsync(string roleId, string permissionToQuery);
+        Task<bool> GetPermissionsAsync(List<string> roleId, string permissionToQuery);
     }
 }

@@ -25,7 +25,7 @@ namespace trnservice.Services.Authorize
             PermissionRequirement requirement)
         {
             // Fetch current user role
-            string? userRole = context.User.FindAll(ClaimTypes.Role).Select(c => c.Value).SingleOrDefault();
+            List<string> userRole = context.User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
 
             // Because we are going to create a singleton, we create ServiceScope
             using IServiceScope scope = _serviceScopeFactory.CreateScope();

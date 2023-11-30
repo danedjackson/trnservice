@@ -1,16 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using trnservice.Areas.Identity.Data;
 using trnservice.Models;
 using trnservice.Services.Authorize;
+using EmailClient;
 
 namespace trnservice.Controllers
 {
@@ -18,12 +15,9 @@ namespace trnservice.Controllers
     public class UserController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager<ApplicationRole> _roleManager;
-        public UserController(UserManager<ApplicationUser> userManager,
-            RoleManager<ApplicationRole> roleManager)
+        public UserController(UserManager<ApplicationUser> userManager)
         {
             _userManager = userManager;
-            _roleManager = roleManager;
         }
 
         public IActionResult Index()
@@ -31,7 +25,7 @@ namespace trnservice.Controllers
             return View(FindNonDeletedUsers());
         }
 
-        [HasPermission(Permissions.Enum.CanDoUserManagement)]
+        [HasPermission(Permissions.CanDoUserManagement)]
         public IActionResult Create()
         {
             return View();
@@ -89,6 +83,7 @@ namespace trnservice.Controllers
             return View(userModel);
         }
 
+        [HasPermission(Permissions.CanDoUserManagement)]
         public async Task<IActionResult> Update(string id)
         {
             ApplicationUser result = await _userManager.FindByIdAsync(id);
@@ -123,10 +118,10 @@ namespace trnservice.Controllers
         }
 
         [HttpPost]
+        [HasPermission(Permissions.CanDoUserManagement)]
         public async Task<IActionResult> Delete(string id)
         {
             ApplicationUser user = await _userManager.FindByIdAsync(id);
-
             if(null == user)
             {
                 return View("Index");

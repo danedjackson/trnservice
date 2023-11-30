@@ -5,9 +5,10 @@
 }
 
 <h5 class="card-title fw-semibold mb-4">Individual TRN Validation Form</h5>
-<form asp-action="Index">
+<div id="astericksHelp" class="form-text" style="margin-bottom:30px">* Required Fields</div>
+<form asp-action="Index" id="trnForm">
     <div class="mb-3">
-        <label asp-for="FirstName" class="form-label">First Name</label>
+        <label asp-for="FirstName" class="form-label">First Name *</label>
         <input asp-for="FirstName" type="text" class="form-control">
         <span asp-validation-for="FirstName" class="text-danger"></span>
     </div>
@@ -18,12 +19,12 @@
         <span asp-validation-for="MiddleName" class="text-danger"></span>
     </div>
     <div class="mb-3">
-        <label asp-for="LastName" class="form-label">Last Name</label>
+        <label asp-for="LastName" class="form-label">Last Name *</label>
         <input asp-for="LastName" type="text" class="form-control">
         <span asp-validation-for="LastName" class="text-danger"></span>
     </div>
     <div class="mb-3">
-        <label asp-for="Gender" class="form-label">Gender</label>
+        <label asp-for="Gender" class="form-label">Gender *</label>
         <select asp-for="Gender" name="Gender" class="form-select">
             <option value="" selected disabled hidden>Select an option</option>
             <option value="F">Female</option>
@@ -32,17 +33,37 @@
         <span asp-validation-for="Gender" class="text-danger"></span>
     </div>
     <div class="mb-3">
-        <label asp-for="DateOfBirth" class="form-label">Date of Birth</label>
+        <label asp-for="DateOfBirth" class="form-label">Date of Birth *</label>
         <input asp-for="DateOfBirth" class="form-control" type="date">
         <span asp-validation-for="DateOfBirth" class="text-danger"></span>
     </div>
     <div class="mb-3">
-        <label asp-for="Trn" class="form-label">Tax Registration Number (TRN)</label>
+        <label asp-for="Trn" class="form-label">Tax Registration Number (TRN) *</label>
         <input asp-for="Trn" type="text" class="form-control">
         <span asp-validation-for="Trn" class="text-danger"></span>
     </div>
+    @if (Model != null)
+    {
+        <div class="mb-3">
+            @if (!string.IsNullOrEmpty(Model.Message))
+            {
+                var alertType = "alert-danger";
+                if (Model.IsMatched)
+                {
+                    alertType = "alert-success";
+                }
+                <div class="alert @alertType" role="alert">
+                    @Model.Message</div>
+            }
+        </div>
+    }
     <button type="submit" class="btn btn-primary">Search</button>
 </form>
+<!-- Reset button -->
+<form asp-action="Reset" style="margin-top:15px;">
+    <button type="submit" class="btn btn-secondary" >Reset</button>
+</form>
+
 <script src="~/libs/jquery/dist/jquery.min.js"></script>
 <script src="~/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/sidebarmenu.js"></script>
@@ -50,5 +71,5 @@
 <script src="~/libs/simplebar/dist/simplebar.js"></script>
 
 @section Scripts {
-@{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }

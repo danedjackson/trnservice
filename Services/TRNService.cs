@@ -19,44 +19,31 @@ namespace trnservice.Services
             _logger = logger;
         }
 
-        public FileResult SingleTRNValidation(TrnSearchRequestViewModel trnDTO)
+        public bool SingleTRNValidation(TrnSearchRequestViewModel trnDTO)
         {
-            string ltrn = trnDTO.Trn;
-            ServiceReference1.MLSSServicesTRNClient obj = new ServiceReference1.MLSSServicesTRNClient();
+            string queryTrn = trnDTO.Trn;
+            // Initiate the service used to fetch TRN information
+            ServiceReference1.MLSSServicesTRNClient trnClient = new ServiceReference1.MLSSServicesTRNClient();
 
-            StringBuilder sb = new StringBuilder();
-
-            // Add headings to String Builder
-            sb.AppendLine("FIRSTNAME,MIDDLENAME,LASTNAME,DOB,GENDER,TRN,TRN STATUS");
-
-            string v = ltrn.ToString();
-            // Converted to char away to check if all characters are numeric
-            v.ToCharArray();
-
-
-            if (ltrn == "" || (!v.All(char.IsDigit)))
+            // If the TRN is non-numeric or an empty string, then we default it to 111111111
+            if (queryTrn == "" || (!queryTrn.All(char.IsDigit)))
             {
-                // If trn is empty or not all numeric, assign default value of "111111111"
-                ltrn = "111111111";
+                queryTrn = "111111111";
             }
 
-            var objtrn = obj.GetIndividualTrn(int.Parse(ltrn));
-            if (objtrn != null && objtrn.IndividualInfo != null 
+            // Querying the trn service with entered TRN 
+            var trnSearchResult = trnClient.GetIndividualTrn(int.Parse(queryTrn));
+
+            if(trnSearchResult != null && trnSearchResult.IndividualInfo != null
                 // Assering that names match before returning a positive result
-                && RawString(trnDTO.FirstName) == RawString(objtrn.IndividualInfo.FirstName)
-                && RawString(trnDTO.LastName) == RawString(objtrn.IndividualInfo.LastName)
-                && RawString(trnDTO.Gender) == RawString(objtrn.IndividualInfo.GenderType))
+                && RawString(trnDTO.FirstName) == RawString(trnSearchResult.IndividualInfo.FirstName)
+                && RawString(trnDTO.LastName) == RawString(trnSearchResult.IndividualInfo.LastName)
+                && RawString(trnDTO.Gender) == RawString(trnSearchResult.IndividualInfo.GenderType))
             {
-                // If found, print the First Name, Middle Name, Last Name, DOB, Gender, and TRN
-                sb.AppendLine(string.Format("{0},{1},{2},{3},{4},{5},{6}", objtrn.IndividualInfo.FirstName, objtrn.IndividualInfo.MiddleName, objtrn.IndividualInfo.LastName, objtrn.IndividualInfo.BirthDate.Value.ToShortDateString(), objtrn.IndividualInfo.GenderType, objtrn.IndividualInfo.NbrTrn, "TRN MATCHED"));
-            }
-            else
-            {
-                // If not found, print the First Name, Middle Name, Last Name, DOB, Gender and "NOT FOUND"
-                sb.AppendLine(string.Format("{0},{1},{2},{3},{4},{5},{6}", trnDTO.FirstName, trnDTO.MiddleName, trnDTO.LastName, trnDTO.DateOfBirth, trnDTO.Gender, trnDTO.Trn, "TRN MISMATCH"));
+                return true;
             }
 
-            return GenerateTRNResponseFile(sb, ltrn+"_TRN_Result_");
+            return false;
         }
 
         public FileResult MultipleTRNValidation(IFormFile formFile)

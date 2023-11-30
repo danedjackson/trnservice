@@ -47,7 +47,7 @@
                                                     @Html.DisplayNameFor(m => m.Input.RememberMe)
                                                 </label>
                                             </div>
-                                            <a class="text-primary fw-bold" asp-page="./ForgotPassword">Forgot Password ?</a>
+                                            <a class="text-primary fw-bold" asp-controller="Account" asp-action="ForgotPassword">Forgot Password ?</a>
                                         </div>
                                         
                                             <div>@Html.ValidationSummary(true, "", new { @class = "text-danger" })</div>

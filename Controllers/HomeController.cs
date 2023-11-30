@@ -11,7 +11,8 @@ using trnservice.Services.Authorize;
 
 namespace trnservice.Controllers
 {
-    [Authorize(Roles = Role.Admin + ", " + Role.User)]
+    //[Authorize(Roles = Role.Admin + ", " + Role.User)]
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -22,14 +23,14 @@ namespace trnservice.Controllers
             _logger = logger;
             _trnService = trnService;
         }
-
-        [HasPermission(Permissions.Enum.CanDoIndividualQuery)]
+        // TODO: Make a default index page so that this Index can be annotated with HasPermission
         public IActionResult Index()
         {
             return View();
         }
 
         [HttpPost]
+        [HasPermission(Permissions.CanDoIndividualQuery)]
         public IActionResult Index(TrnSearchRequestViewModel trnDTO)
         {
             if(!ModelState.IsValid)
@@ -37,16 +38,24 @@ namespace trnservice.Controllers
                 return View("Index", trnDTO);
             }
             // Retreive Memory Stream of the TRN Search results
-            return _trnService.SingleTRNValidation(trnDTO);
+            if (_trnService.SingleTRNValidation(trnDTO))
+            {
+                trnDTO.IsMatched = true;
+                trnDTO.Message = $"TRN Information MATCHED for {trnDTO.FirstName} {trnDTO.LastName}";
+                return View("Index", trnDTO);
+            }
+            trnDTO.Message = $"TRN Information MISMATCHED for {trnDTO.FirstName} {trnDTO.LastName}";
+            return View("Index", trnDTO);
         }
 
 
-        [HasPermission(Permissions.Enum.CanDoBulkQuery)]
         public IActionResult Upload()
         {
             return View();
         }
+
         [HttpPost]
+        [HasPermission(Permissions.CanDoBulkQuery)]
         public IActionResult Upload(IFormFile file)
         {
             if (file == null || file.Length == 0 || !file.FileName.EndsWith(".csv"))
@@ -56,6 +65,10 @@ namespace trnservice.Controllers
             return _trnService.MultipleTRNValidation(file);
         }
 
+        public IActionResult Reset()
+        {
+            return View("Index", new TrnSearchRequestViewModel());
+        }
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

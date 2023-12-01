@@ -46,6 +46,7 @@ namespace trnservice.Controllers
                     userResult.FirstName = userModel.FirstName;
                     userResult.LastName = userModel.LastName;
                     userResult.UserName = userModel.UserName;
+                    userResult.Email = userModel.Email;
                     userResult.Password = userModel.Password;
                     // Setting new password from model
                     await UpdatePassword(userResult);
@@ -67,13 +68,15 @@ namespace trnservice.Controllers
                 {
                     FirstName = userModel.FirstName,
                     LastName = userModel.LastName,
-                    UserName = userModel.UserName
+                    UserName = userModel.UserName,
+                    Email = userModel.Email
                 };
 
                 IdentityResult result = await _userManager.CreateAsync(user, userModel.Password);
                 if (result.Succeeded)
                 {
-                    return RedirectToAction("Index");
+                    userModel.Message = "Successfully created user details";
+                    return View(userModel);
                 }
                 else
                 {

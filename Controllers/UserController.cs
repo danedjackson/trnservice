@@ -11,19 +11,13 @@ using EmailClient;
 
 namespace trnservice.Controllers
 {
-    //[Authorize(Roles = Role.Admin)]
+    [Authorize(Roles = Role.Admin)]
     public class UserController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager<ApplicationRole> _roleManager;
-        private readonly EmailService _emailService;
-        public UserController(UserManager<ApplicationUser> userManager,
-            RoleManager<ApplicationRole> roleManager,
-            EmailService emailService)
+        public UserController(UserManager<ApplicationUser> userManager)
         {
             _userManager = userManager;
-            _roleManager = roleManager;
-            _emailService = emailService;
         }
 
         public IActionResult Index()

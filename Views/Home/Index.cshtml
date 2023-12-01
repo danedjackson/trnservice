@@ -47,12 +47,13 @@
         <div class="mb-3">
             @if (!string.IsNullOrEmpty(Model.Message))
             {
-                var color = "red";
+                var alertType = "alert-danger";
                 if (Model.IsMatched)
                 {
-                    color = "green";
+                    alertType = "alert-success";
                 }
-                <label style="color: @color;">@Model.Message</label>
+                <div class="alert @alertType" role="alert">
+                    @Model.Message</div>
             }
         </div>
     }

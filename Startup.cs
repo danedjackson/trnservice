@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using EmailClient;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -29,6 +30,7 @@ namespace trnservice
             services.AddScoped<ITRNService, TRNService>();
             // DI for custom HasPermission Annotation
             services.AddScoped<IPermissionService, PermissionService>();
+            services.AddScoped<EmailService>();
             services.AddHttpContextAccessor();
             services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
             services.AddSingleton<IAuthorizationPolicyProvider, 

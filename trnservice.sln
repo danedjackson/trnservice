@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.32228.343
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "trnservice", "trnservice.csproj", "{40B0E146-BB33-47F7-84C7-DC548A410FDC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "trnservice", "trnservice.csproj", "{40B0E146-BB33-47F7-84C7-DC548A410FDC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailClient", "..\EmailClient\EmailClient.csproj", "{867B5969-A128-43D3-A72B-E2BA88299431}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{40B0E146-BB33-47F7-84C7-DC548A410FDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40B0E146-BB33-47F7-84C7-DC548A410FDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{40B0E146-BB33-47F7-84C7-DC548A410FDC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{867B5969-A128-43D3-A72B-E2BA88299431}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{867B5969-A128-43D3-A72B-E2BA88299431}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{867B5969-A128-43D3-A72B-E2BA88299431}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{867B5969-A128-43D3-A72B-E2BA88299431}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

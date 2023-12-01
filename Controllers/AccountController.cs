@@ -1,57 +1,96 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using EmailClient;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections;
 using System.Threading.Tasks;
+using trnservice.Areas.Identity.Data;
 using trnservice.Models;
+using trnservice.Models.User;
 
 namespace trnservice.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly EmailService _emailService;
 
-        public AccountController(SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager)
+        public AccountController(UserManager<ApplicationUser> userManager,
+            EmailService emailService)
         {
-            _signInManager = signInManager;
             _userManager = userManager;
+            _emailService = emailService;
         }
-        public IActionResult Login()
+        [HttpGet]
+        public IActionResult ForgotPassword()
         {
-            return View("Login");
+            return View();
         }
 
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByNameAsync(model.UserName);
+                if (user != null)
+                {
+                    var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                    var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = token }, protocol: HttpContext.Request.Scheme);
 
+                    // Send an email with the reset link 
+                    _emailService.SendEmail(
+                        user.Email,
+                        "Password Reset Confirmation",
+                        $"Click this link to reset your password for the TRN Validation Service:<br>{callbackUrl}"
+                        );
+                }
 
-        //[HttpPost]
-        //public async Task<IActionResult> Login(UserLoginViewModel user)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return View("Login", user);
-        //    }
-        //    //var result = await _signInManager.PasswordSignInAsync(user.Username, user.Password, false, lockoutOnFailure: false);
+                // If the user is not found, still show a success message to prevent enumeration attacks
+                model.Message = "If username exists, an email confirmation was sent to the corresponding email address, please check your email!";
+                return View(model);
+            }
 
-        //    var check = await _userManager.FindByNameAsync(user.Username);
+            return View(model);
+        }
 
-        //    if(null == check)
-        //    {
-        //        return View("Login", user);
-        //    }
+        [HttpGet]
+        public IActionResult ResetPassword(string userId, string code)
+        {
+            var model = new ResetPasswordViewModel { UserId = userId, Code = code };
+            return View(model);
+        }
 
-        //    var result = await _signInManager.PasswordSignInAsync(check, user.Password, false, false);
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByIdAsync(model.UserId);
+                if (user != null)
+                {
+                    var result = await _userManager.ResetPasswordAsync(user, model.Code, model.NewPassword);
 
-        //    if (result.Succeeded)
-        //    {
-        //        // Redirect to a secure page
-        //        return RedirectToAction("Index", "Home");
-        //    }
-        //    else
-        //    {
-        //        ModelState.AddModelError(string.Empty, "Invalid login attempt");
-        //        return View("Login");
-        //    }
-        //}
+                    if (result.Succeeded)
+                    {
+                        // Automatically sign in the user after successful password reset
+                        //await _signInManager.SignInAsync(user, isPersistent: false);
 
-       
+                        model = new ResetPasswordViewModel
+                        {
+                            Message = "Successfully changed your password. Please use your new password to login!"
+                        };
+                        return View(model);
+                    }
+
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+                }
+                ModelState.AddModelError(string.Empty, "Could not change your password. Please try again.");
+            }
+
+            return View(model);
+        }
     }
 }

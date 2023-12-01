@@ -1,29 +1,29 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using trnservice.Areas.Identity.Data;
 using trnservice.Models;
 using trnservice.Services.Authorize;
+using EmailClient;
 
 namespace trnservice.Controllers
 {
-    [Authorize(Roles = Role.Admin)]
+    //[Authorize(Roles = Role.Admin)]
     public class UserController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
+        private readonly EmailService _emailService;
         public UserController(UserManager<ApplicationUser> userManager,
-            RoleManager<ApplicationRole> roleManager)
+            RoleManager<ApplicationRole> roleManager,
+            EmailService emailService)
         {
             _userManager = userManager;
             _roleManager = roleManager;
+            _emailService = emailService;
         }
 
         public IActionResult Index()
@@ -128,7 +128,6 @@ namespace trnservice.Controllers
         public async Task<IActionResult> Delete(string id)
         {
             ApplicationUser user = await _userManager.FindByIdAsync(id);
-
             if(null == user)
             {
                 return View("Index");

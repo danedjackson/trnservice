@@ -105,7 +105,7 @@ namespace trnservice.Controllers
             userDbRecord.FirstName = user.FirstName;
             userDbRecord.LastName = user.LastName;
             userDbRecord.Email = user.Email;
-            userDbRecord.UserName = user.Email;
+            userDbRecord.UserName = user.UserName;
             if(null != user.Password)
             {
                 userDbRecord.Password = user.Password;

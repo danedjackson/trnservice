@@ -25,10 +25,14 @@
     </div>
 
     <div class="form-group">
-        <label asp-for="@Model.UserName"></label>
+        <label asp-for="@Model.UserName">Username</label>
         <input asp-for="@Model.UserName" class="form-control" />
         <span asp-validation-for="@Model.UserName" class="text-danger"></span>
-    </div>
+    </div><div class="form-group">
+    <label asp-for="@Model.Email">Email Address</label>
+    <input asp-for="@Model.Email" class="form-control" type="email"/>
+    <span asp-validation-for="@Model.Email" class="text-danger"></span>
+</div>
     <div class="form-group">
         <label asp-for="@Model.Password"></label>
         <input asp-for="@Model.Password" class="form-control" type="password"/>

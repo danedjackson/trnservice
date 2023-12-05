@@ -18,8 +18,6 @@ namespace trnservice.Services.Authorize
             _roleManager = roleManager;
         }
         // This does the processing for our HasPermission annotation
-
-
         public async Task<bool> GetPermissionsAsync(List<string> userRoles, string queryPermission)
         {
             foreach (var userRole in userRoles)

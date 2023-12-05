@@ -4,18 +4,18 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace trnservice.Models
+namespace trnservice.Models.Roles
 {
-    public class RoleModification
+    public class RolePermissionModification
     {
         [Required]
         public string RoleName { get; set; }
-
+        [Required]
         public string RoleId { get; set; }
 #nullable enable
-        public string[]? AddIds { get; set; }
+        public int[]? PermissionIdsToAdd { get; set; }
 
-        public string[]? DeleteIds { get; set; }
+        public int[]? PermissionIdsToDelete { get; set; }
 #nullable disable
     }
 }

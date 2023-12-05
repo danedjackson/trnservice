@@ -8,7 +8,7 @@ namespace trnservice.Data
     public class AuthDbContext : IdentityDbContext<ApplicationUser>
     {
         public DbSet<ApplicationPermission> Permissions { get; set; }
-        public DbSet<ApplicationRolePermissions> RolePermissions { get; set; }
+        public DbSet<ApplicationRolePermission> RolePermissions { get; set; }
 
         public AuthDbContext(DbContextOptions<AuthDbContext> options)
             : base(options)
@@ -23,15 +23,15 @@ namespace trnservice.Data
             // Add your customizations after calling base.OnModelCreating(builder);
 
             // Configure many-to-many relationship
-            builder.Entity<ApplicationRolePermissions>()
+            builder.Entity<ApplicationRolePermission>()
                 .HasKey(rp => new { rp.PermissionId, rp.RoleId });
 
-            builder.Entity<ApplicationRolePermissions>()
+            builder.Entity<ApplicationRolePermission>()
                 .HasOne(rp => rp.Permission)
                 .WithMany(p => p.RolePermissions)
                 .HasForeignKey(rp => rp.PermissionId);
 
-            builder.Entity<ApplicationRolePermissions>()
+            builder.Entity<ApplicationRolePermission>()
                 .HasOne(rp => rp.Role)
                 .WithMany(r => r.RolePermissions)
                 .HasForeignKey(rp => rp.RoleId);

@@ -184,7 +184,7 @@ namespace trnservice.Migrations
                     b.ToTable("Permissions");
                 });
 
-            modelBuilder.Entity("trnservice.Areas.Identity.Data.ApplicationRolePermissions", b =>
+            modelBuilder.Entity("trnservice.Areas.Identity.Data.ApplicationRolePermission", b =>
                 {
                     b.Property<int>("PermissionId")
                         .HasColumnType("int");
@@ -340,7 +340,7 @@ namespace trnservice.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("trnservice.Areas.Identity.Data.ApplicationRolePermissions", b =>
+            modelBuilder.Entity("trnservice.Areas.Identity.Data.ApplicationRolePermission", b =>
                 {
                     b.HasOne("trnservice.Areas.Identity.Data.ApplicationPermission", "Permission")
                         .WithMany("RolePermissions")

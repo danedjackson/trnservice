@@ -20,9 +20,25 @@ namespace trnservice.Controllers
             _userManager = userManager;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(string searchString, int page = 1, int pageSize = 10)
         {
-            return View(_userManager.Users);
+            // Fetching all users
+            var query = _userManager.Users;
+
+            // Apply search filter from UI
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                query = query.Where(user =>
+                    user.Email.Contains(searchString) ||
+                    user.FirstName.Contains(searchString) ||
+                    user.LastName.Contains(searchString) ||
+                    user.UserName.Contains(searchString));
+            }
+
+            // Apply pagination
+            PagedList<ApplicationUser> pagedResult = PaginateList(query, page, pageSize);
+
+            return View(pagedResult);
         }
 
         [HasPermission(Permissions.CanDoUserManagement)]
@@ -59,7 +75,7 @@ namespace trnservice.Controllers
                     IdentityResult identityResult = await _userManager.UpdateAsync(userResult);
                     if(identityResult.Succeeded)
                     {
-                        return RedirectToAction("Index");
+                        return RedirectToAction("Index", FindAllUsers());
                     }
                     else
                     {
@@ -121,7 +137,7 @@ namespace trnservice.Controllers
             {
                 Errors(result);
             }
-            return View("Index", _userManager.Users);
+            return View("Index", FindAllUsers());
         }
 
         [HttpPost]
@@ -131,7 +147,7 @@ namespace trnservice.Controllers
             ApplicationUser user = await _userManager.FindByIdAsync(id);
             if(null == user)
             {
-                return View("Index");
+                return View("Index", FindAllUsers());
             }
             user.IsActive = false;
             IdentityResult result =await _userManager.UpdateAsync(user);
@@ -141,8 +157,31 @@ namespace trnservice.Controllers
                 Errors(result);
             }
 
-            return View("Index", _userManager.Users);
+            return View("Index", FindAllUsers());
         }
+
+        public async Task<IActionResult> Reactivate(string id)
+        {
+            ApplicationUser fetchedUser = await _userManager.FindByIdAsync(id);
+            if(null == fetchedUser)
+            {
+                return View("Index", FindAllUsers());
+            }
+
+            fetchedUser.IsActive = true;
+
+            IdentityResult result = await _userManager.UpdateAsync(fetchedUser);
+
+            if (!result.Succeeded)
+            {
+                Errors(result);
+            }
+
+            return View("Index", FindAllUsers());
+        }
+
+
+
 
         private void Errors(IdentityResult result)
         {
@@ -156,11 +195,24 @@ namespace trnservice.Controllers
         {
             return _userManager.Users.Where(user => user.IsActive == true);
         }
+
+        private PagedList<ApplicationUser> FindAllUsers()
+        {
+            return PaginateList(_userManager.Users, 1, 10);
+        }
         private async Task UpdatePassword(ApplicationUser applicationUser)
         {
             // Setting new password from model
             var token = await _userManager.GeneratePasswordResetTokenAsync(applicationUser);
             _ = await _userManager.ResetPasswordAsync(applicationUser, token, applicationUser.Password);
+        }
+
+        private PagedList<ApplicationUser> PaginateList(IQueryable<ApplicationUser> query, int page, int pageSize)
+        {
+            var totalCount = query.Count();
+            var pagedUsers = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            return new PagedList<ApplicationUser>(pagedUsers, totalCount, page, pageSize);
         }
     }
 }

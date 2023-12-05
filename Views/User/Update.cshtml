@@ -46,6 +46,10 @@
 
         <a asp-action="Index" class="btn btn-secondary">Back</a>
         <button type="submit" class="btn btn-primary">Update</button>
+        @if (!Model.IsActive)
+        {
+            <a asp-controller="User" asp-action="Reactivate" asp-route-id="@Model.Id" class="btn btn-success">Reactivate</a>
+        }
     </form>
 </div>
 <script src="~/libs/jquery/dist/jquery.min.js"></script>

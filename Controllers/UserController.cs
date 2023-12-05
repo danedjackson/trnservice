@@ -22,7 +22,7 @@ namespace trnservice.Controllers
 
         public IActionResult Index()
         {
-            return View(FindNonDeletedUsers());
+            return View(_userManager.Users);
         }
 
         [HasPermission(Permissions.CanDoUserManagement)]
@@ -39,7 +39,11 @@ namespace trnservice.Controllers
                 // Checking if user exists
                 // If user exists, assume deleted flag is true.
                 // change the deleted flag to false, if not, continue creation
-                ApplicationUser userResult = await _userManager.FindByNameAsync(userModel.UserName);
+                ApplicationUser userResult = await _userManager.FindByEmailAsync(userModel.Email);
+                if(null != userResult && userModel.Email.ToLower().Equals(userResult.Email.ToLower())) {
+                    ModelState.AddModelError("", "Email address already exists");
+                    return View();
+                }
                 if(null != userResult && !userResult.IsActive)
                 {
                     userResult.IsActive = true;
@@ -104,8 +108,8 @@ namespace trnservice.Controllers
             ApplicationUser userDbRecord = await _userManager.FindByIdAsync(user.Id);
             userDbRecord.FirstName = user.FirstName;
             userDbRecord.LastName = user.LastName;
-            userDbRecord.Email = user.Email;
-            userDbRecord.UserName = user.UserName;
+            //userDbRecord.Email = user.Email;
+            //userDbRecord.UserName = user.UserName;
             if(null != user.Password)
             {
                 userDbRecord.Password = user.Password;
@@ -117,7 +121,7 @@ namespace trnservice.Controllers
             {
                 Errors(result);
             }
-            return View("Index", FindNonDeletedUsers());
+            return View("Index", _userManager.Users);
         }
 
         [HttpPost]
@@ -137,7 +141,7 @@ namespace trnservice.Controllers
                 Errors(result);
             }
 
-            return View("Index", FindNonDeletedUsers());
+            return View("Index", _userManager.Users);
         }
 
         private void Errors(IdentityResult result)

@@ -1,0 +1,11 @@
+﻿@page
+@model ConfirmEmailModel
+@{
+    ViewData["Title"] = "Confirmed Email Address";
+    Layout = "./_AccountLayout";
+}
+
+<h3>Succesffully Confirmed Your Email Address!</h3>
+<form asp-action="Index" asp-controller="Home" method="get">
+    <button type="submit" class="btn btn-secondary w-100 fs-4 mb-4 rounded-2">Go To Application</button>
+</form>

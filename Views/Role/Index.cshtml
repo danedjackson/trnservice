@@ -16,7 +16,8 @@
                     <td>@role.Id</td>
                     <td>@role.Name</td>
                     <td>
-                        <a class="btn btn-sm btn-primary" asp-action="Update" asp-route-id="@role.Id">Update</a>
+                        <a class="btn btn-sm btn-primary" asp-action="Update" asp-route-id="@role.Id">Update Users</a>
+                        <a class="btn btn-sm btn-warning" asp-action="UpdatePermissions" asp-route-id="@role.Id">Update Permissions</a>
                         <a class="btn btn-sm btn-danger" onclick="confirmDelete('@role.Id')">Delete</a>
                     </td>
                 </tr>
@@ -24,6 +25,8 @@
         </table>
         <a asp-action="Create" class="btn btn-secondary">Create a Role</a>
     </div>
+
+    <div asp-validation-summary="All" class="text-danger"></div>
 </div>
 
 <script src="~/libs/jquery/dist/jquery.min.js"></script>

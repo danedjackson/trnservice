@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using trnservice.Areas.Identity.Data;
 using trnservice.Data;
 using trnservice.Models;
+using trnservice.Models.Roles;
 using trnservice.Services.Authorize;
 
 namespace trnservice.Controllers
@@ -61,7 +62,7 @@ namespace trnservice.Controllers
                     ApplicationRole roleResult = await _roleManager.FindByNameAsync(roleCreationDetails.Name);
                     
                     // Initialize our role - permission relationship variable
-                    List<ApplicationRolePermissions> rolePermissions = new List<ApplicationRolePermissions>();
+                    List<ApplicationRolePermission> rolePermissions = new List<ApplicationRolePermission>();
 
                     // Building the Role - Permission relationship context for persistence
                     roleCreationDetails.SelectedPermissions.ForEach(selectedPermission =>
@@ -70,7 +71,7 @@ namespace trnservice.Controllers
                         {
                             if (selectedPermission.ToString() == perm.Name)
                             {
-                                rolePermissions.Add(new ApplicationRolePermissions
+                                rolePermissions.Add(new ApplicationRolePermission
                                 {
                                     PermissionId = perm.Id,
                                     RoleId = roleResult.Id
@@ -131,18 +132,18 @@ namespace trnservice.Controllers
 
         // Add or remove roles from a user
         [HttpPost]
-        public async Task<IActionResult> Update(RoleModification roleModification)
+        public async Task<IActionResult> Update(UserRoleModification userRoleModification)
         {
             IdentityResult result;
             if (ModelState.IsValid)
             {
                 // If AddIds is not empty, add role to users
-                foreach (string userId in roleModification.AddIds ?? new string[] { })
+                foreach (string userId in userRoleModification.AddIds ?? new string[] { })
                 {
                     ApplicationUser user = await FindNonDeletedUser(userId);
                     if (null != user)
                     {
-                        result = await _userManager.AddToRoleAsync(user, roleModification.RoleName);
+                        result = await _userManager.AddToRoleAsync(user, userRoleModification.RoleName);
                         if (!result.Succeeded)
                         {
                             Errors(result);
@@ -150,12 +151,12 @@ namespace trnservice.Controllers
                     }
                 }
                 // If DeleteIds is not empty, remove role from users
-                foreach (string userId in roleModification.DeleteIds ?? new string[] { })
+                foreach (string userId in userRoleModification.DeleteIds ?? new string[] { })
                 {
                     ApplicationUser user = await FindNonDeletedUser(userId);
                     if (null != user  )
                     {
-                        result = await _userManager.RemoveFromRoleAsync(user, roleModification.RoleName);
+                        result = await _userManager.RemoveFromRoleAsync(user, userRoleModification.RoleName);
                         if (!result.Succeeded)
                         {
                             Errors(result);
@@ -170,8 +171,92 @@ namespace trnservice.Controllers
             }
             else
             {
-                return await Update(roleModification.RoleId);
+                return await Update(userRoleModification.RoleId);
             }
+        }
+
+        [HasPermission(Permissions.CanDoRoleManagement)]
+        public async Task<IActionResult> UpdatePermissions(string id)
+        {
+            // Fetching selected role information
+            IdentityRole role = await _roleManager.FindByIdAsync(id);
+
+            // Grabbing all application role-permission relationships from the database
+            List<ApplicationRolePermission> rolePermissions = _authDbContext.RolePermissions
+                .Where(rp => rp.RoleId == role.Id)
+                .ToList();
+
+            // Grabbing all permissions from the database for assignment
+            List<ApplicationPermission> allPermissions = _authDbContext.Permissions.ToList();
+
+            // Use LINQ to filter assigned and unassigned permissions
+            var assignedPermissionIds = rolePermissions
+                                        .Select(rp => rp.PermissionId)
+                                        .ToList();
+            var assignedPermissions = allPermissions.Where(p => assignedPermissionIds
+                                        .Contains(p.Id))
+                                        .ToList();
+            var unassignedPermissions = allPermissions
+                                        .Except(assignedPermissions)
+                                        .ToList();
+
+            return View(new RolePermissionDetails
+            {
+                Role = role,
+                AssignedPermissions = assignedPermissions,
+                UnassignedPermissions = unassignedPermissions,
+            });
+        }
+
+        [HttpPost]
+        public IActionResult UpdatePermissions(RolePermissionModification rolePermissionModification)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("UpdatePermissions", rolePermissionModification.RoleId);
+            }
+
+            foreach (int permissionId in rolePermissionModification.PermissionIdsToAdd
+                ?? new int[] { })
+            {
+                ApplicationPermission permission = _authDbContext.Permissions.FirstOrDefault(p => p.Id == permissionId);
+                if (null != permission)
+                {
+
+                    // Adding role - permission details
+                    _ = _authDbContext.RolePermissions.Add(new ApplicationRolePermission
+                    {
+                        PermissionId = permission.Id,
+                        RoleId = rolePermissionModification.RoleId,
+                    });
+                }
+            }
+
+            foreach (int permissionId in rolePermissionModification.PermissionIdsToDelete
+                ?? new int[] { })
+            {
+                ApplicationPermission permission = _authDbContext.Permissions.FirstOrDefault(p => p.Id == permissionId);
+                {
+
+                    // Removing role - permission details
+                    _ = _authDbContext.RolePermissions.Remove(new ApplicationRolePermission
+                    {
+                        PermissionId = permission.Id,
+                        RoleId = rolePermissionModification.RoleId,
+                    });
+                }
+            }
+
+            // Saving changes to RolePermissions Database
+            var saved = _authDbContext.SaveChanges();
+
+            if (saved == 0)
+            {
+                ModelState.AddModelError("", "Failed to adjust permission changes");
+                return RedirectToAction("Index");
+            }
+
+            return RedirectToAction("Index");
         }
 
         [HttpPost]

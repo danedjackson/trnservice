@@ -22,6 +22,6 @@ namespace trnservice.Areas.Identity.Data
         public DateTime DateCreated { get; set; }
 
         [JsonIgnore]
-        public ICollection<ApplicationRolePermissions> RolePermissions { get; set; }
+        public ICollection<ApplicationRolePermission> RolePermissions { get; set; }
     }
 }

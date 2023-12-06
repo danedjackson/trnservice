@@ -18,7 +18,7 @@ namespace trnservice.Areas.Identity.Data
         [Column(TypeName = "datetime")]
         public DateTime CreatedAt { get; set; }
 
-        public ICollection<ApplicationRolePermissions> RolePermissions { get; set; }
+        public ICollection<ApplicationRolePermission> RolePermissions { get; set; }
 
     }
 }

@@ -82,12 +82,30 @@ namespace trnservice.Areas.Identity.Pages.Account
 
             if (ModelState.IsValid)
             {
-                // This doesn't count login failures towards account lockout
+                ApplicationUser user = await _userManager.FindByNameAsync(Input.UserName);
+                if(null != user && !user.IsActive)
+                {
+                    ModelState.AddModelError(string.Empty, "Account Inactive.");
+                    return Page();
+                }
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 var result = await _signInManager.PasswordSignInAsync(Input.UserName, Input.Password, Input.RememberMe, lockoutOnFailure: true);
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
+                    if(user.LastLoggedIn is null)
+                    {
+                        return RedirectToAction("ForceChangePassword", "Account");
+                    } else
+                    {
+                        user.LastLoggedIn = DateTime.Now;
+
+                        var updateResult = await _userManager.UpdateAsync(user);
+                        if (!updateResult.Succeeded)
+                        {
+                            _logger.LogWarning($"Could not set LastLoggedIn value for user '{user.UserName}'");
+                        }
+                    }
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)

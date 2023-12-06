@@ -27,11 +27,11 @@ namespace trnservice.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel forgotPasswordViewModel)
         {
             if (ModelState.IsValid)
             {
-                var user = await _userManager.FindByNameAsync(model.UserName);
+                var user = await _userManager.FindByNameAsync(forgotPasswordViewModel.UserName);
                 if (user != null)
                 {
                     var token = await _userManager.GeneratePasswordResetTokenAsync(user);
@@ -46,11 +46,11 @@ namespace trnservice.Controllers
                 }
 
                 // If the user is not found, still show a success message to prevent enumeration attacks
-                model.Message = "If username exists, an email confirmation was sent to the corresponding email address, please check your email!";
-                return View(model);
+                forgotPasswordViewModel.Message = "If username exists, an email confirmation was sent to the corresponding email address, please check your email!";
+                return View(forgotPasswordViewModel);
             }
 
-            return View(model);
+            return View(forgotPasswordViewModel);
         }
 
         [HttpGet]
@@ -61,25 +61,22 @@ namespace trnservice.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel resetPasswordViewModel)
         {
             if (ModelState.IsValid)
             {
-                var user = await _userManager.FindByIdAsync(model.UserId);
+                var user = await _userManager.FindByIdAsync(resetPasswordViewModel.UserId);
                 if (user != null)
                 {
-                    var result = await _userManager.ResetPasswordAsync(user, model.Code, model.NewPassword);
+                    var result = await _userManager.ResetPasswordAsync(user, resetPasswordViewModel.Code, resetPasswordViewModel.NewPassword);
 
                     if (result.Succeeded)
                     {
-                        // Automatically sign in the user after successful password reset
-                        //await _signInManager.SignInAsync(user, isPersistent: false);
-
-                        model = new ResetPasswordViewModel
+                        resetPasswordViewModel = new ResetPasswordViewModel
                         {
                             Message = "Successfully changed your password. Please use your new password to login!"
                         };
-                        return View(model);
+                        return View(resetPasswordViewModel);
                     }
 
                     foreach (var error in result.Errors)
@@ -90,7 +87,91 @@ namespace trnservice.Controllers
                 ModelState.AddModelError(string.Empty, "Could not change your password. Please try again.");
             }
 
-            return View(model);
+            return View(resetPasswordViewModel);
+        }
+
+        [HttpGet]
+        public IActionResult ChangePassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel changePasswordViewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View();
+            }
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
+            if(user is null)
+            {
+                ModelState.AddModelError(string.Empty, "Could not change your password");
+                return View();
+            }
+
+            IdentityResult result = await _userManager.ChangePasswordAsync(user, changePasswordViewModel.CurrentPassword,
+                changePasswordViewModel.NewPassword);
+
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+                return View();
+            }
+
+            changePasswordViewModel.Message = "You have successfully changed your password! Use your updated password on your next sign in.";
+            return View(changePasswordViewModel);
+        }
+
+        [HttpGet]
+        public IActionResult ForceChangePassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ForceChangePassword(ForceChangePasswordViewModel forceChangePasswordViewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View();
+            }
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
+            if (user is null)
+            {
+                ModelState.AddModelError(string.Empty, "Could not change your password");
+                return View();
+            }
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            IdentityResult result = await _userManager.ResetPasswordAsync(user, token,
+                forceChangePasswordViewModel.NewPassword);
+
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+                return View();
+            }
+            // Updating Last log in field
+            user.LastLoggedIn = System.DateTime.Now;
+            var update = await _userManager.UpdateAsync(user);
+
+            if (!update.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+                return View();
+            }
+            forceChangePasswordViewModel.Message = "You have successfully changed your password! Use your updated password on your next sign in.";
+            return View(forceChangePasswordViewModel);
         }
     }
 }

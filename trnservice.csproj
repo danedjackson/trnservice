@@ -9,6 +9,8 @@
     <Compile Remove="Migrations\20231116173426_InitialCreate.Designer.cs" />
     <Compile Remove="Migrations\20231116173832_InitialCreateNo2.cs" />
     <Compile Remove="Migrations\20231116173832_InitialCreateNo2.Designer.cs" />
+    <Compile Remove="Migrations\20231206152830_AddingLastLoggedInToUser.cs" />
+    <Compile Remove="Migrations\20231206152830_AddingLastLoggedInToUser.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

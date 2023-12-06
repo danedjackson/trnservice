@@ -25,7 +25,8 @@ namespace trnservice.Areas.Identity
 
                 services.AddDefaultIdentity<ApplicationUser>(options => 
                 {
-                    options.SignIn.RequireConfirmedAccount = false;
+                    //TODO: Change this when email confirmation is added
+                    options.SignIn.RequireConfirmedAccount = true;
                     options.Password.RequireDigit = false;
                     options.Password.RequireUppercase = false;
                     options.Password.RequireNonAlphanumeric = false;

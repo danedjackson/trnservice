@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace trnservice.Areas.Identity.Data
 {
-    public class ApplicationRolePermissions
+    public class ApplicationRolePermission
     {
         public int PermissionId { get; set; }
         public ApplicationPermission Permission { get; set; }

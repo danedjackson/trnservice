@@ -124,5 +124,53 @@ namespace trnservice.Controllers
             changePasswordViewModel.Message = "You have successfully changed your password! Use your updated password on your next sign in.";
             return View(changePasswordViewModel);
         }
+
+        [HttpGet]
+        public IActionResult ForceChangePassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ForceChangePassword(ForceChangePasswordViewModel forceChangePasswordViewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View();
+            }
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
+            if (user is null)
+            {
+                ModelState.AddModelError(string.Empty, "Could not change your password");
+                return View();
+            }
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            IdentityResult result = await _userManager.ResetPasswordAsync(user, token,
+                forceChangePasswordViewModel.NewPassword);
+
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+                return View();
+            }
+            // Updating Last log in field
+            user.LastLoggedIn = System.DateTime.Now;
+            var update = await _userManager.UpdateAsync(user);
+
+            if (!update.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+                return View();
+            }
+            forceChangePasswordViewModel.Message = "You have successfully changed your password! Use your updated password on your next sign in.";
+            return View(forceChangePasswordViewModel);
+        }
     }
 }

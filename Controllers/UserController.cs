@@ -59,36 +59,12 @@ namespace trnservice.Controllers
             if (ModelState.IsValid)
             {
                 // Checking if user exists
-                // If user exists, assume deleted flag is true.
-                // change the deleted flag to false, if not, continue creation
                 ApplicationUser userResult = await _userManager.FindByEmailAsync(userModel.Email);
                 if(null != userResult && userModel.Email.ToLower().Equals(userResult.Email.ToLower())) {
                     ModelState.AddModelError("", "Email address already exists");
                     return View();
                 }
-                if(null != userResult && !userResult.IsActive)
-                {
-                    userResult.IsActive = true;
-                    userResult.FirstName = userModel.FirstName;
-                    userResult.LastName = userModel.LastName;
-                    userResult.UserName = userModel.UserName;
-                    userResult.Email = userModel.Email;
-                    userResult.Password = userModel.Password;
-                    // Setting new password from model
-                    await UpdatePassword(userResult);
 
-                    // Updating the user with the newly entered data
-                    IdentityResult identityResult = await _userManager.UpdateAsync(userResult);
-                    if(identityResult.Succeeded)
-                    {
-                        return RedirectToAction("Index", FindAllUsers());
-                    }
-                    else
-                    {
-                        Errors(identityResult);
-                        return View();
-                    }
-                }
                 // Continue Creation if no deleted user is found
                 ApplicationUser user = new ApplicationUser
                 {
@@ -130,8 +106,6 @@ namespace trnservice.Controllers
             ApplicationUser userDbRecord = await _userManager.FindByIdAsync(user.Id);
             userDbRecord.FirstName = user.FirstName;
             userDbRecord.LastName = user.LastName;
-            //userDbRecord.Email = user.Email;
-            //userDbRecord.UserName = user.UserName;
             if(null != user.Password)
             {
                 userDbRecord.Password = user.Password;
@@ -143,7 +117,7 @@ namespace trnservice.Controllers
             {
                 Errors(result);
             }
-            return View("Index", FindAllUsers());
+            return View("Index", FindNonDeletedUsers());
         }
 
         [HttpPost]
@@ -153,7 +127,7 @@ namespace trnservice.Controllers
             ApplicationUser user = await _userManager.FindByIdAsync(id);
             if(null == user)
             {
-                return View("Index", FindAllUsers());
+                return View("Index", FindNonDeletedUsers());
             }
             user.IsActive = false;
             IdentityResult result =await _userManager.UpdateAsync(user);
@@ -163,7 +137,7 @@ namespace trnservice.Controllers
                 Errors(result);
             }
 
-            return View("Index", FindAllUsers());
+            return View("Index", FindNonDeletedUsers());
         }
 
         public async Task<IActionResult> Reactivate(string id)
@@ -171,7 +145,7 @@ namespace trnservice.Controllers
             ApplicationUser fetchedUser = await _userManager.FindByIdAsync(id);
             if(null == fetchedUser)
             {
-                return View("Index", FindAllUsers());
+                return View("Index", FindNonDeletedUsers());
             }
 
             fetchedUser.IsActive = true;
@@ -183,7 +157,7 @@ namespace trnservice.Controllers
                 Errors(result);
             }
 
-            return View("Index", FindAllUsers());
+            return View("Index", FindNonDeletedUsers());
         }
 
 
@@ -196,15 +170,15 @@ namespace trnservice.Controllers
                 ModelState.AddModelError("", error.Description);
             }
         }
-        
-        private IQueryable<ApplicationUser> FindNonDeletedUsers()
+
+        private PagedList<ApplicationUser> FindNonDeletedUsers()
         {
-            return _userManager.Users.Where(user => user.IsActive == true);
+            return PaginateList(_userManager.Users.Where(user => user.IsActive == true), PAGE, PAGE_SIZE);
         }
 
         private PagedList<ApplicationUser> FindAllUsers()
         {
-            return PaginateList(_userManager.Users, 1, 10);
+            return PaginateList(_userManager.Users, PAGE, PAGE_SIZE);
         }
         private async Task UpdatePassword(ApplicationUser applicationUser)
         {

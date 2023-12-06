@@ -18,11 +18,12 @@ namespace trnservice.Areas.Identity.Data
         [Column(TypeName = "varchar(30)")]
         public string LastName { get; set; }
 
-        //[Column(TypeName = "sysdatetime()")]
-        //public DateTime LastLoggedIn { get; set; }
-
         [Column(TypeName = "bit")]
         public Boolean IsActive { get; set; } = true;
+
+        [Column(TypeName = "datetime")]
+        public DateTime? LastLoggedIn { get; set; }
+
         // Field only used to aid in password changes
         [NotMapped]
         public string Password { get; set; }

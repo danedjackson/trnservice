@@ -15,16 +15,22 @@ namespace trnservice.Controllers
     public class UserController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        // Constant variables for pagination process
+        private readonly int PAGE = 1;
+        private readonly int PAGE_SIZE = 10;
         public UserController(UserManager<ApplicationUser> userManager)
         {
             _userManager = userManager;
         }
 
-        public IActionResult Index(string searchString, int page = 1, int pageSize = 10)
+        public IActionResult Index(string searchString, bool showInactive, int page = 1, int pageSize = 10)
         {
             // Fetching all users
             var query = _userManager.Users;
-
+            if (!showInactive)
+            {
+                query = query.Where(user => user.IsActive);
+            }
             // Apply search filter from UI
             if (!string.IsNullOrEmpty(searchString))
             {

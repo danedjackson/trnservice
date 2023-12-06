@@ -12,8 +12,11 @@
         <form method="get" action="@Url.Action("Index")">
             <div class="form-row mb-3">
                 <div class="col mb-3">
-                    <input type="text" class="form-control" placeholder="Search" name="searchString" 
+                    <input type="text" class="form-control" placeholder="Search" name="searchString"
                            value="@ViewBag.SearchString" />
+                </div>
+                <div class="mb-3">
+                    <input type="checkbox" name="showInactive" value="true"> Show Inactive
                 </div>
                 <div class="col">
                     <button type="submit" class="btn btn-primary">Search</button>

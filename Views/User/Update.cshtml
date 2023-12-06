@@ -48,7 +48,14 @@
         <button type="submit" class="btn btn-primary">Update</button>
         @if (!Model.IsActive)
         {
-            <a asp-controller="User" asp-action="Reactivate" asp-route-id="@Model.Id" class="btn btn-success">Reactivate</a>
+            <div class="mb-3">
+                <a asp-controller="User" asp-action="Reactivate" asp-route-id="@Model.Id" class="btn btn-success">Reactivate</a>
+            </div>
+        }@if (!Model.EmailConfirmed)
+        {
+            <div class="mb-3">
+                <a asp-controller="User" asp-action="ResendConfirmationEmail" asp-route-id="@Model.Id" class="btn btn-success">Resend Email Confirmation</a>
+            </div>
         }
     </form>
 </div>

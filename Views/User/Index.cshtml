@@ -16,7 +16,7 @@
                            value="@ViewBag.SearchString" />
                 </div>
                 <div class="mb-3">
-                    <input type="checkbox" name="showInactive" value="true"> Show Inactive
+                    <input type="checkbox" name="showInactive" value="true" @(ViewBag.ShowInactive ? "checked" : "")> Show Inactive
                 </div>
                 <div class="col">
                     <button type="submit" class="btn btn-primary">Search</button>
@@ -26,11 +26,31 @@
 
         <table class="table table-sm table-bordered table-bordered">
             <tr>
-                <th>Email Address</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Username</th>
-                <th>Status</th>
+                <th><a asp-action="Index" 
+                       asp-route-sortOrder="email" 
+                       asp-route-sortDirection="@(ViewBag.SortDirection == "asc" ? "desc" : "asc")"
+                       asp-route-showInactive="@(ViewBag.ShowInactive)">Email Address
+                    </a></th>
+                <th><a asp-action="Index" 
+                       asp-route-sortOrder="firstname" 
+                       asp-route-sortDirection="@(ViewBag.SortDirection == "asc" ? "desc" : "asc")"
+                       asp-route-showInactive="@(ViewBag.ShowInactive)">First Name
+                    </a></th>
+                <th><a asp-action="Index" 
+                       asp-route-sortOrder="lastname" 
+                       asp-route-sortDirection="@(ViewBag.SortDirection == "asc" ? "desc" : "asc")"
+                       asp-route-showInactive="@(ViewBag.ShowInactive)">Last Name
+                    </a></th>
+                <th><a asp-action="Index" 
+                       asp-route-sortOrder="username" 
+                       asp-route-sortDirection="@(ViewBag.SortDirection == "asc" ? "desc" : "asc")"
+                       asp-route-showInactive="@(ViewBag.ShowInactive)">Username
+                    </a></th>
+                <th><a asp-action="Index" 
+                       asp-route-sortOrder="status" 
+                       asp-route-sortDirection="@(ViewBag.SortDirection == "asc" ? "desc" : "asc")"
+                       asp-route-showInactive="@(ViewBag.ShowInactive)">Status
+                    </a></th>
                 <th>Action</th>
             </tr>
             @foreach (var user in Model.Items)
@@ -40,13 +60,19 @@
                     <td>@user.FirstName</td>
                     <td>@user.LastName</td>
                     <td>@user.UserName</td>
-                    @if (user.IsActive)
+                    @if (user.IsActive && user.LockoutEnd is null)
                     {
                         <td>
                             <button class="btn btn-sm btn-success m-1 disabled">Active</button>
                         </td>
                     }
-                    else
+                    else if(user.IsActive && user.LockoutEnd != null)
+                    {
+                        <td>
+                            <button class="btn btn-sm btn-danger m-1 disabled">Locked</button>
+                        </td>
+                    }
+                    else if(!user.IsActive)
                     {
                         <td>
                             <button class="btn btn-sm btn-dark m-1 disabled">Inactive</button>
@@ -67,7 +93,11 @@
         <div class="pagination">
             @for (var i = 1; i <= Model.TotalPages; i++)
             {
-                <a href="@Url.Action("Index", new { page = i, searchString = ViewBag.SearchString, showInactive = ViewBag.ShowInactive })" class="page-link">@i</a>
+                <a href="@Url.Action("Index", new { 
+                        page = i, 
+                        searchString = ViewBag.SearchString, 
+                        showInactive = ViewBag.ShowInactive,
+                        sortOrder = ViewBag.SortOrder })" class="page-link">@i</a>
             }
         </div>
 

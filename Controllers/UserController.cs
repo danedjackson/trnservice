@@ -30,10 +30,16 @@ namespace trnservice.Controllers
             _emailService = emailService;
         }
 
-        public IActionResult Index(string searchString, bool showInactive, int page = 1, int pageSize = 10)
+        public IActionResult Index(string searchString, 
+            bool showInactive, 
+            string sortOrder, 
+            string sortDirection, 
+            int page = 1, 
+            int pageSize = 10)
         {
             // Fetching all users
             var query = _userManager.Users;
+
             if (!showInactive)
             {
                 query = query.Where(user => user.IsActive);
@@ -48,8 +54,23 @@ namespace trnservice.Controllers
                     user.UserName.Contains(searchString));
             }
 
+            // Apply sorting
+            query = (sortOrder?.ToLower()) switch
+            {
+                "firstname" => (sortDirection?.ToLower() == "desc") ? query.OrderByDescending(user => user.FirstName) : query.OrderBy(user => user.FirstName),
+                "lastname" => (sortDirection?.ToLower() == "desc") ? query.OrderByDescending(user => user.LastName) : query.OrderBy(user => user.LastName),
+                "username" => (sortDirection?.ToLower() == "desc") ? query.OrderByDescending(user => user.UserName) : query.OrderBy(user => user.UserName),
+                "status" => (sortDirection?.ToLower() == "desc") ? query.OrderByDescending(user => user.IsActive) : query.OrderBy(user => user.IsActive),
+                _ => (sortDirection?.ToLower() == "desc") ? query.OrderByDescending(user => user.Email) : query.OrderBy(user => user.Email),
+            };
+
             // Apply pagination
             PagedList<ApplicationUser> pagedResult = PaginateList(query, page, pageSize);
+
+            // Pass sorting information to the view
+            ViewBag.SortOrder = sortOrder;
+            ViewBag.SortDirection = sortDirection;
+            ViewBag.ShowInactive = showInactive;
 
             return View(pagedResult);
         }

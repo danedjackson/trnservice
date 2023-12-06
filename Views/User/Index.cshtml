@@ -16,7 +16,7 @@
                            value="@ViewBag.SearchString" />
                 </div>
                 <div class="mb-3">
-                    <input type="checkbox" name="showInactive" value="true" @(ViewBag.ShowInactive ? "checked" : "")> Show Inactive
+                    <input type="checkbox" name="showInactive" value="true" @(ViewBag.ShowInactive ?? false ? "checked" : "")> Show Inactive
                 </div>
                 <div class="col">
                     <button type="submit" class="btn btn-primary">Search</button>

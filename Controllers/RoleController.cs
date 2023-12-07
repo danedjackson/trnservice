@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -49,7 +50,7 @@ namespace trnservice.Controllers
             {
                 IdentityResult result = await _roleManager.CreateAsync(new ApplicationRole { 
                     Name = roleCreationDetails.Name,
-                    CreatedAt = System.DateTime.Now,
+                    CreatedAt = DateTime.Now,
                     CreatedBy = User.Identity.Name,
                     IsActive = true
                 });

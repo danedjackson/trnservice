@@ -86,6 +86,8 @@ namespace trnservice.Areas.Identity.Pages.Account
                 if(null != user && !user.IsActive)
                 {
                     ModelState.AddModelError(string.Empty, "Account Inactive.");
+                    // Sign out user to prevent issues logging in on another user
+                    await _signInManager.SignOutAsync();
                     return Page();
                 }
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true

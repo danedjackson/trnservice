@@ -206,6 +206,24 @@ namespace trnservice.Controllers
             return View("Index", FindNonDeletedUsers());
         }
 
+        public async Task<IActionResult> Unlock(string id)
+        {
+            ApplicationUser user = await _userManager.FindByIdAsync(id);
+            if (null == user)
+            {
+                return View("Index", FindNonDeletedUsers());
+            }
+
+            user.LockoutEnd = null;
+            IdentityResult result = await _userManager.UpdateAsync(user);
+
+            if (!result.Succeeded)
+            {
+                Errors(result);
+            }
+
+            return View("Index", FindNonDeletedUsers());
+        }
 
 
 

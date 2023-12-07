@@ -1,7 +1,6 @@
 ﻿using EmailClient;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections;
 using System.Threading.Tasks;
 using trnservice.Areas.Identity.Data;
 using trnservice.Models;

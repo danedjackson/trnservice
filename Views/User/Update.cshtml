@@ -40,23 +40,35 @@
             <input asp-for="@Model.Password" class="form-control" type="password" />
             <span asp-validation-for="@Model.Password" class="text-danger"></span>
         </div>
-        <div class="row">
-        </div>
-        <div>@Html.ValidationSummary(true, "", new { @class = "text-danger" })</div>
 
-        <a asp-action="Index" class="btn btn-secondary">Back</a>
-        <button type="submit" class="btn btn-primary">Update</button>
-        @if (!Model.IsActive)
+        <div>@Html.ValidationSummary(true, "", new { @class = "text-danger" })</div>
+        <div class="mb-3">
+            <a asp-action="Index" class="btn btn-secondary">Back</a>
+        </div>
+        @if (Model.IsActive)
         {
             <div class="mb-3">
-                <a asp-controller="User" asp-action="Reactivate" asp-route-id="@Model.Id" class="btn btn-success">Reactivate</a>
-            </div>
-        }@if (!Model.EmailConfirmed)
-        {
-            <div class="mb-3">
-                <a asp-controller="User" asp-action="ResendConfirmationEmail" asp-route-id="@Model.Id" class="btn btn-success">Resend Email Confirmation</a>
+                <button type="submit" class="btn btn-primary">Update</button>
             </div>
         }
+        <div class="row">
+            @if (!Model.IsActive)
+            {
+                <div class="mb-3">
+                    <a asp-controller="User" asp-action="Reactivate" asp-route-id="@Model.Id" class="btn btn-success">Reactivate</a>
+                </div>
+            }@if (!Model.EmailConfirmed && Model.IsActive)
+            {
+                <div class="mb-3">
+                    <a asp-controller="User" asp-action="ResendConfirmationEmail" asp-route-id="@Model.Id" class="btn btn-warning">Resend Email Confirmation</a>
+                </div>
+            }@if (Model.LockoutEnd != null && Model.IsActive)
+            {
+                <div class="mb-3">
+                    <a asp-controller="User" asp-action="Unlock" asp-route-id="@Model.Id" class="btn btn-success">Unlock</a>
+                </div>
+            }
+        </div>
     </form>
 </div>
 <script src="~/libs/jquery/dist/jquery.min.js"></script>

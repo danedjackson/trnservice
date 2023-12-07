@@ -24,8 +24,20 @@ namespace trnservice.Areas.Identity.Data
         [Column(TypeName = "datetime")]
         public DateTime? LastLoggedIn { get; set; }
 
+        [Column(TypeName = "varchar(30)")]
+        public string? DeletedBy { get; set; }
+
+        [Column(TypeName = "datetime")]
+        public DateTime? DeletedAt { get; set; }
+
+        [Column(TypeName = "varchar(30)")]
+        public string? ModifiedBy { get; set; }
+
+        [Column(TypeName = "datetime")]
+        public DateTime? LastModified { get; set; }
+
         // Field only used to aid in password changes
-        [NotMapped]
-        public string Password { get; set; }
+        //[NotMapped]
+        //public string Password { get; set; }
     }
 }

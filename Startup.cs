@@ -31,6 +31,7 @@ namespace trnservice
             // DI for custom HasPermission Annotation
             services.AddScoped<IPermissionService, PermissionService>();
             services.AddScoped<EmailService>();
+            services.AddScoped<Utils>();
             services.AddHttpContextAccessor();
             services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
             services.AddSingleton<IAuthorizationPolicyProvider, 

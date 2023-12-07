@@ -11,6 +11,7 @@ using EmailClient;
 using System.Text;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Text.Encodings.Web;
+using trnservice.Services;
 
 namespace trnservice.Controllers
 {
@@ -19,15 +20,17 @@ namespace trnservice.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly EmailService _emailService;
+        private readonly Utils _utils;
 
         // Constant variables for pagination process
         private readonly int PAGE = 1;
         private readonly int PAGE_SIZE = 10;
         public UserController(UserManager<ApplicationUser> userManager,
-            EmailService emailService)
+            EmailService emailService, Utils utils)
         {
             _userManager = userManager;
             _emailService = emailService;
+            _utils = utils;
         }
 
         public IActionResult Index(string searchString, 
@@ -139,11 +142,15 @@ namespace trnservice.Controllers
             ApplicationUser userDbRecord = await _userManager.FindByIdAsync(user.Id);
             userDbRecord.FirstName = user.FirstName;
             userDbRecord.LastName = user.LastName;
-            if(null != user.Password)
-            {
-                userDbRecord.Password = user.Password;
-                await UpdatePassword(userDbRecord);
-            }
+            // Since we have Forgot Password Feature, admins shouldn't be able to set passwords for users
+            //if(null != user.Password)
+            //{
+            //    userDbRecord.Password = user.Password;
+                
+            //    await UpdatePassword(userDbRecord);
+            //}
+            // Setting ModifiedBy and LastModified fields
+            userDbRecord = _utils.UpdateModifiedFields(userDbRecord, User.Identity.Name);
 
             IdentityResult result = await _userManager.UpdateAsync(userDbRecord);
             if (!result.Succeeded)
@@ -175,7 +182,7 @@ namespace trnservice.Controllers
             {
                 return View("Index", FindNonDeletedUsers());
             }
-            user.IsActive = false;
+            user = _utils.UpdateDeletedFields(user, User.Identity.Name);
             IdentityResult result =await _userManager.UpdateAsync(user);
 
             if(!result.Succeeded)
@@ -195,6 +202,7 @@ namespace trnservice.Controllers
             }
 
             fetchedUser.IsActive = true;
+            fetchedUser = _utils.UpdateModifiedFields(fetchedUser, User.Identity.Name);
 
             IdentityResult result = await _userManager.UpdateAsync(fetchedUser);
 
@@ -215,6 +223,8 @@ namespace trnservice.Controllers
             }
 
             user.LockoutEnd = null;
+            user = _utils.UpdateModifiedFields(user, User.Identity.Name);
+
             IdentityResult result = await _userManager.UpdateAsync(user);
 
             if (!result.Succeeded)
@@ -244,12 +254,12 @@ namespace trnservice.Controllers
         {
             return PaginateList(_userManager.Users, PAGE, PAGE_SIZE);
         }
-        private async Task UpdatePassword(ApplicationUser applicationUser)
-        {
-            // Setting new password from model
-            var token = await _userManager.GeneratePasswordResetTokenAsync(applicationUser);
-            _ = await _userManager.ResetPasswordAsync(applicationUser, token, applicationUser.Password);
-        }
+        //private async Task UpdatePassword(ApplicationUser applicationUser)
+        //{
+        //    // Setting new password from model
+        //    var token = await _userManager.GeneratePasswordResetTokenAsync(applicationUser);
+        //    _ = await _userManager.ResetPasswordAsync(applicationUser, token, applicationUser.Password);
+        //}
 
         private async Task SendEmailConfirmationCode(ApplicationUser user)
         {

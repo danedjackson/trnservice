@@ -18,6 +18,13 @@ namespace trnservice.Areas.Identity.Data
         [Column(TypeName = "datetime")]
         public DateTime CreatedAt { get; set; }
 
+        [Column(TypeName = "varchar(30)")]
+        public string? ModifiedBy { get; set; }
+
+        [Column(TypeName = "datetime")]
+        public DateTime? LastModified { get; set; }
+
+
         public ICollection<ApplicationRolePermission> RolePermissions { get; set; }
 
     }

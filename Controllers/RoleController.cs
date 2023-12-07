@@ -3,17 +3,16 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using trnservice.Areas.Identity.Data;
 using trnservice.Data;
 using trnservice.Models;
 using trnservice.Models.Roles;
+using trnservice.Services;
 using trnservice.Services.Authorize;
 
 namespace trnservice.Controllers
@@ -24,12 +23,15 @@ namespace trnservice.Controllers
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly AuthDbContext _authDbContext;
+        private readonly Utils _utils;
         public RoleController(RoleManager<ApplicationRole> roleManager, 
-            UserManager<ApplicationUser> userManager, AuthDbContext authDbContext)
+            UserManager<ApplicationUser> userManager, AuthDbContext authDbContext,
+            Utils utils)
         {
             _roleManager = roleManager;
             _userManager = userManager;
             _authDbContext = authDbContext;
+            _utils = utils;
         }
 
         public ViewResult Index()
@@ -48,6 +50,21 @@ namespace trnservice.Controllers
         {
             if (ModelState.IsValid)
             {
+                // TODO: Confirm we want isActive functionality for roles
+                var role = await _roleManager.FindByNameAsync(roleCreationDetails.Name);
+                if (null != role)
+                {
+                    role.IsActive = true;
+                    IdentityResult updateResult = await _roleManager.UpdateAsync(role);
+                    if (updateResult.Succeeded)
+                    {
+                        ModelState.AddModelError("", $"Role already exists. Reactivating {role.Name}");
+                        return View("Create");
+                    }
+                }
+
+
+
                 IdentityResult result = await _roleManager.CreateAsync(new ApplicationRole { 
                     Name = roleCreationDetails.Name,
                     CreatedAt = DateTime.Now,

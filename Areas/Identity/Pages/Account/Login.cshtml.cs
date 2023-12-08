@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using trnservice.Areas.Identity.Data;
+using trnservice.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace trnservice.Areas.Identity.Pages.Account
 {
@@ -20,15 +22,20 @@ namespace trnservice.Areas.Identity.Pages.Account
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly AuthDbContext _authDbContext;
+        private readonly AlternativeDbContext _alternativeDbContext;
+
         private readonly ILogger<LoginModel> _logger;
 
-        public LoginModel(SignInManager<ApplicationUser> signInManager, 
-            ILogger<LoginModel> logger,
-            UserManager<ApplicationUser> userManager)
+        public LoginModel(SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger,
+            UserManager<ApplicationUser> userManager, AuthDbContext authDbContext,
+            AlternativeDbContext alternativeDbContext)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
+            _authDbContext = authDbContext;
+            _alternativeDbContext = alternativeDbContext;
         }
 
         [BindProperty]
@@ -83,50 +90,82 @@ namespace trnservice.Areas.Identity.Pages.Account
             if (ModelState.IsValid)
             {
                 ApplicationUser user = await _userManager.FindByNameAsync(Input.UserName);
-                if(null != user && !user.IsActive)
+
+                if (user != null && !user.IsActive)
                 {
                     ModelState.AddModelError(string.Empty, "Account Inactive.");
-                    // Sign out user to prevent issues logging in on another user
                     await _signInManager.SignOutAsync();
                     return Page();
                 }
-                // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(Input.UserName, Input.Password, Input.RememberMe, lockoutOnFailure: true);
-                if (result.Succeeded)
-                {
-                    _logger.LogInformation("User logged in.");
-                    if(user.LastLoggedIn is null)
-                    {
-                        return RedirectToAction("ForceChangePassword", "Account");
-                    } else
-                    {
-                        user.LastLoggedIn = DateTime.Now;
 
-                        var updateResult = await _userManager.UpdateAsync(user);
-                        if (!updateResult.Succeeded)
-                        {
-                            _logger.LogWarning($"Could not set LastLoggedIn value for user '{user.UserName}'");
-                        }
+                var signInResult = await _signInManager.PasswordSignInAsync(Input.UserName, Input.Password, Input.RememberMe, lockoutOnFailure: true);
+
+                if (!signInResult.Succeeded)
+                {
+                    // Check for various login result scenarios
+                    if (signInResult.RequiresTwoFactor)
+                    {
+                        return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
                     }
-                    return LocalRedirect(returnUrl);
-                }
-                if (result.RequiresTwoFactor)
-                {
-                    return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
-                }
-                if (result.IsLockedOut)
-                {
-                    _logger.LogWarning("User account locked out.");
-                    return RedirectToPage("./Lockout");
-                }
-                else
-                {
+                    if (signInResult.IsLockedOut)
+                    {
+                        _logger.LogWarning("User account locked out.");
+                        return RedirectToPage("./Lockout");
+                    }
+
+                    // Invalid login attempt, add error message
                     ModelState.AddModelError(string.Empty, "Invalid login attempt.");
                     return Page();
                 }
+
+                _logger.LogInformation("User logged in.");
+
+                if (user.LastLoggedIn is null)
+                {
+                    return RedirectToAction("ForceChangePassword", "Account");
+                }
+                else
+                {
+                    /*
+                     * Developer Note:
+                     * Initially had a straightforward process to read user data using _userManager, 
+                     * then update LastLoggedIn if the user has logged in before. However, we were getting
+                     * an issue with the db Context tracking the ID and not allowing us to update using the
+                     * same context.
+                     * 
+                     * Detaching the ApplicationUser from the context before the update was not working.
+                     * 
+                     * Work around was to create an alternate DB Context, load the user initially with main context
+                     * (_userManager uses main context), then update using the alternate DB Context.
+                     * 
+                     * We are also Detaching the ApplicationUser from the initial context to be safe.
+                     */
+                    _authDbContext.Entry(user).State = EntityState.Detached;
+
+                    ApplicationUser updateUser = _alternativeDbContext.Users.FirstOrDefault(u =>
+                        u.UserName == Input.UserName);
+
+                    updateUser.LastLoggedIn = DateTime.Now;
+
+                    _alternativeDbContext.Update(updateUser);
+                    var updated = _alternativeDbContext.SaveChanges();
+
+                    if (updated == 0 )
+                    {
+                        _logger.LogWarning($"Could not set LastLoggedIn value for user '{user.UserName}'");
+                    }
+
+                    //var updateResult = await _userManager.UpdateAsync(user);
+
+                    //if (!updateResult.Succeeded)
+                    //{
+                    //    _logger.LogWarning($"Could not set LastLoggedIn value for user '{user.UserName}'");
+                    //}
+                }
+
+                return LocalRedirect(returnUrl);
             }
 
-            // If we got this far, something failed, redisplay form
             return Page();
         }
     }

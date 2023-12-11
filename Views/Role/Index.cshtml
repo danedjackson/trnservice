@@ -1,4 +1,5 @@
-﻿@model IEnumerable<IdentityRole>
+﻿@using trnservice.Areas.Identity.Data
+@model PagedList<ApplicationRole>
 @{
     ViewData["Title"] = "ROLES";
 }
@@ -8,21 +9,90 @@
     <div class="card-body">
         <h1>All Roles</h1>
 
+        <form method="get" action="@Url.Action("Index")">
+            <div class="form-row mb-3">
+                <div class="col mb-3">
+                    <input type="text" class="form-control" placeholder="Search" name="searchString"
+                           value="@ViewBag.SearchString" />
+                </div>
+                <div class="mb-3">
+                    <input type="checkbox" name="showInactive" value="true" @(ViewBag.ShowInactive ?? false ? "checked" : "")> Show Inactive
+                </div>
+                <div class="col">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+            </div>
+        </form>
+
         <table class="table table-sm table-bordered table-bordered">
-            <tr><th>ID</th><th>Name</th><th>Actions</th></tr>
-            @foreach (var role in Model)
+            <tr>
+                <th>
+                    <a asp-action="Index"
+                       asp-route-sortOrder="id"
+                       asp-route-sortDirection="@(ViewBag.SortDirection == "asc" ? "desc" : "asc")"
+                       asp-route-showInactive="@(ViewBag.ShowInactive)">
+                        ID
+                    </a>
+                </th>
+                <th>
+                    <a asp-action="Index"
+                       asp-route-sortOrder="name"
+                       asp-route-sortDirection="@(ViewBag.SortDirection == "asc" ? "desc" : "asc")"
+                       asp-route-showInactive="@(ViewBag.ShowInactive)">
+                        Name
+                    </a>
+                </th>
+                <th>
+                    <a asp-action="Index"
+                       asp-route-sortOrder="status"
+                       asp-route-sortDirection="@(ViewBag.SortDirection == "asc" ? "desc" : "asc")"
+                       asp-route-showInactive="@(ViewBag.ShowInactive)">
+                        Status
+                    </a>
+                </th>
+                <th>Actions</th>
+            </tr>
+            @foreach (var role in Model.Items)
             {
                 <tr>
                     <td>@role.Id</td>
                     <td>@role.Name</td>
-                    <td>
+                    @if(role.IsActive)
+                    { 
+                        <td>
+                            <button class="btn btn-sm btn-success m-1 disabled">Active</button>
+                        </td>
+                    } else 
+                    {
+                        <td>
+                            <button class="btn btn-sm btn-dark m-1 disabled">Inactive</button>
+                        </td>
+                    }
+                <td>
+                    @if (role.IsActive)
+                    {
                         <a class="btn btn-sm btn-primary" asp-action="Update" asp-route-id="@role.Id">Update Users</a>
                         <a class="btn btn-sm btn-warning" asp-action="UpdatePermissions" asp-route-id="@role.Id">Update Permissions</a>
                         <a class="btn btn-sm btn-danger" onclick="confirmDelete('@role.Id')">Delete</a>
-                    </td>
+                    }
+                    else
+                    {
+                        <a class="btn btn-sm btn-success" asp-action="Reactivate" asp-route-id="@role.Id">Reactivate</a>
+                    }
+                </td>
                 </tr>
             }
         </table>
+        <div class="pagination">
+            @for (var i = 1; i <= Model.TotalPages; i++)
+            {
+                <a href="@Url.Action("Index", new {
+                        page = i,
+                        searchString = ViewBag.SearchString,
+                        showInactive = ViewBag.ShowInactive,
+                        sortOrder = ViewBag.SortOrder })" class="page-link">@i</a>
+                    }
+        </div>
         <a asp-action="Create" class="btn btn-secondary">Create a Role</a>
     </div>
 

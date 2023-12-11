@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using trnservice.Areas.Identity.Data;
+using trnservice.Models;
 
 namespace trnservice.Services
 {
@@ -32,5 +34,23 @@ namespace trnservice.Services
             return user;
         }
 
+        public ApplicationRole UpdateDeletedFields(ApplicationRole role,
+            string modifiedBy)
+        {
+            role.DeletedAt = DateTime.Now;
+            role.ModifiedBy = modifiedBy;
+            role.DeletedBy = modifiedBy;
+            role.IsActive = false;
+
+            return role;
+        }
+
+        public PagedList<T> PaginateList<T>(IQueryable<T> query, int page, int pageSize)
+        {
+            var totalCount = query.Count();
+            var pagedUsers = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            return new PagedList<T>(pagedUsers, totalCount, page, pageSize);
+        }
     }
 }

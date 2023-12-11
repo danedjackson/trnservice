@@ -21,10 +21,6 @@ namespace trnservice.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly EmailService _emailService;
         private readonly Utils _utils;
-
-        // Constant variables for pagination process
-        private readonly int PAGE = 1;
-        private readonly int PAGE_SIZE = 10;
         public UserController(UserManager<ApplicationUser> userManager,
             EmailService emailService, Utils utils)
         {
@@ -33,12 +29,8 @@ namespace trnservice.Controllers
             _utils = utils;
         }
 
-        public IActionResult Index(string searchString, 
-            bool showInactive, 
-            string sortOrder, 
-            string sortDirection, 
-            int page = 1, 
-            int pageSize = 10)
+        public IActionResult Index(string searchString, bool showInactive, string sortOrder, 
+            string sortDirection, int page = 1, int pageSize = 10)
         {
             // Fetching all users
             var query = _userManager.Users;
@@ -68,7 +60,7 @@ namespace trnservice.Controllers
             };
 
             // Apply pagination
-            PagedList<ApplicationUser> pagedResult = PaginateList(query, page, pageSize);
+            PagedList<ApplicationUser> pagedResult = _utils.PaginateList(query, page, pageSize);
 
             // Pass sorting information to the view
             ViewBag.SortOrder = sortOrder;
@@ -247,12 +239,12 @@ namespace trnservice.Controllers
 
         private PagedList<ApplicationUser> FindNonDeletedUsers()
         {
-            return PaginateList(_userManager.Users.Where(user => user.IsActive == true), PAGE, PAGE_SIZE);
+            return _utils.PaginateList(_userManager.Users.Where(user => user.IsActive == true), 1, 10);
         }
 
         private PagedList<ApplicationUser> FindAllUsers()
         {
-            return PaginateList(_userManager.Users, PAGE, PAGE_SIZE);
+            return _utils.PaginateList(_userManager.Users, 1, 10);
         }
         //private async Task UpdatePassword(ApplicationUser applicationUser)
         //{
@@ -274,14 +266,6 @@ namespace trnservice.Controllers
 
             _emailService.SendEmail(user.Email, "Confirm your email",
                 $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
-        }
-
-        private PagedList<ApplicationUser> PaginateList(IQueryable<ApplicationUser> query, int page, int pageSize)
-        {
-            var totalCount = query.Count();
-            var pagedUsers = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-
-            return new PagedList<ApplicationUser>(pagedUsers, totalCount, page, pageSize);
         }
     }
 }

@@ -60,13 +60,13 @@
                     <td>@user.FirstName</td>
                     <td>@user.LastName</td>
                     <td>@user.UserName</td>
-                    @if (user.IsActive && user.LockoutEnd is null)
+                    @if (user.IsActive && (user.LockoutEnd == null || user.LockoutEnd < DateTime.Now))
                     {
                         <td>
                             <button class="btn btn-sm btn-success m-1 disabled">Active</button>
                         </td>
                     }
-                    else if(user.IsActive && user.LockoutEnd != null)
+                    else if(user.IsActive && user.LockoutEnd != null && user.LockoutEnd > DateTime.Now)
                     {
                         <td>
                             <button class="btn btn-sm btn-danger m-1 disabled">Locked</button>

@@ -24,6 +24,7 @@ namespace trnservice.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly AuthDbContext _authDbContext;
         private readonly Utils _utils;
+
         public RoleController(RoleManager<ApplicationRole> roleManager, 
             UserManager<ApplicationUser> userManager, AuthDbContext authDbContext,
             Utils utils)
@@ -34,9 +35,50 @@ namespace trnservice.Controllers
             _utils = utils;
         }
 
-        public ViewResult Index()
+        public ViewResult Index(string searchString, bool showInactive, string sortOrder,
+            string sortDirection, int page = 1, int pageSize = 10)
         {
-            return View(_roleManager.Roles.Where(role => role.IsActive));
+            // Fetch all roles
+            var query = _roleManager.Roles;
+
+            // filter results based on active flag
+            if (!showInactive)
+            {
+                query = query.Where(role => role.IsActive);
+            }
+
+            // Apply search string
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                query = query.Where(role =>
+                    role.Name.Contains(searchString));
+            }
+
+            // Sorting
+            query = (sortOrder?.ToLower()) switch
+            {
+                "name" => (sortDirection?.ToLower() == "desc")
+                    ? query.OrderByDescending(role => role.Id)
+                    : query.OrderBy(role => role.Id),
+                "status" => (sortDirection?.ToLower() == "desc") 
+                    ? query.OrderByDescending(role => role.IsActive) 
+                    : query.OrderBy(role => role.IsActive),
+                _ => (sortDirection?.ToLower() == "desc")
+                    ? query.OrderByDescending(role => role.Id)
+                    : query.OrderBy(role => role.Id),
+            };
+
+            // Pagination
+            PagedList<ApplicationRole> pagedResult = _utils.PaginateList(query, page, pageSize);
+
+            // ViewBag object used to pass information to the View for persistence
+            ViewBag.SortOrder = sortOrder;
+            ViewBag.SortDirection = sortDirection;
+            ViewBag.ShowInactive = showInactive;
+
+            return View(pagedResult);
+
+            //return View(_roleManager.Roles.Where(role => role.IsActive));
         }
 
         [HasPermission(Permissions.CanDoRoleManagement)]
@@ -110,7 +152,7 @@ namespace trnservice.Controllers
                         return View("Create");
                     }
 
-                    return RedirectToAction("Index");
+                    return RedirectToAction("Index", FindNonDeletedRoles());
                 }
                 else
                 {
@@ -185,7 +227,7 @@ namespace trnservice.Controllers
 
             if (ModelState.IsValid)
             {
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", FindNonDeletedRoles());
             }
             else
             {
@@ -271,10 +313,32 @@ namespace trnservice.Controllers
             if (saved == 0)
             {
                 ModelState.AddModelError("", "Failed to adjust permission changes");
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", FindNonDeletedRoles());
             }
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", FindNonDeletedRoles());
+        }
+
+        [HasPermission(Permissions.CanDoRoleManagement)]
+        public async Task<IActionResult> Reactivate(string id)
+        {
+            ApplicationRole role = await _roleManager.FindByIdAsync(id);
+            if(null == role)
+            {
+                return View("Index", FindNonDeletedRoles());
+            }
+
+            role.IsActive = true;
+            role = _utils.UpdateModifiedFields(role, User.Identity.Name);
+
+            IdentityResult result = await _roleManager.UpdateAsync(role);
+
+            if(!result.Succeeded)
+            {
+                Errors(result);
+            }
+
+            return View("Index", FindNonDeletedRoles());
         }
 
         [HttpPost]
@@ -284,11 +348,12 @@ namespace trnservice.Controllers
             ApplicationRole role = await _roleManager.FindByIdAsync(id);
             if (null != role)
             {
-                role.IsActive = false;
+                //role.IsActive = false;
+                role = _utils.UpdateDeletedFields(role, User.Identity.Name);
                 IdentityResult result = await _roleManager.UpdateAsync(role);
                 if (result.Succeeded)
                 {
-                    return RedirectToAction("Index");
+                    return RedirectToAction("Index", FindNonDeletedRoles());
                 }
                 else
                 {
@@ -299,7 +364,7 @@ namespace trnservice.Controllers
             {
                 ModelState.AddModelError("", "No role found");
             }
-            return View("Index", _roleManager.Roles);
+            return View("Index", FindNonDeletedRoles());
         }
 
         private void Errors(IdentityResult result)
@@ -317,6 +382,10 @@ namespace trnservice.Controllers
                 return null;
             }
             return user;
+        }
+        private PagedList<ApplicationRole> FindNonDeletedRoles()
+        {
+            return _utils.PaginateList(_roleManager.Roles.Where(role => role.IsActive == true), 1, 10);
         }
     }
 }

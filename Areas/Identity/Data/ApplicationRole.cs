@@ -24,6 +24,12 @@ namespace trnservice.Areas.Identity.Data
         [Column(TypeName = "datetime")]
         public DateTime? LastModified { get; set; }
 
+        [Column(TypeName = "varchar(30)")]
+        public string? DeletedBy { get; set; }
+
+        [Column(TypeName = "datetime")]
+        public DateTime? DeletedAt { get; set; }
+
 
         public ICollection<ApplicationRolePermission> RolePermissions { get; set; }
 

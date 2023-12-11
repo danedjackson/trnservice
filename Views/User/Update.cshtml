@@ -35,11 +35,6 @@
             <input asp-for="@Model.Email" class="form-control" type="email" disabled />
             <span asp-validation-for="@Model.Email" class="text-danger"></span>
         </div>
-        @*<div class="form-group mb-3">
-            <label asp-for="@Model.Password"></label>
-            <input asp-for="@Model.Password" class="form-control" type="password" />
-            <span asp-validation-for="@Model.Password" class="text-danger"></span>
-        </div>*@
 
         <div>@Html.ValidationSummary(true, "", new { @class = "text-danger" })</div>
         <div class="mb-3">
@@ -62,7 +57,7 @@
                 <div class="mb-3">
                     <a asp-controller="User" asp-action="ResendConfirmationEmail" asp-route-id="@Model.Id" class="btn btn-warning">Resend Email Confirmation</a>
                 </div>
-            }@if (Model.LockoutEnd != null && Model.IsActive)
+            }@if (Model.LockoutEnd != null && Model.LockoutEnd > DateTime.Now && Model.IsActive)
             {
                 <div class="mb-3">
                     <a asp-controller="User" asp-action="Unlock" asp-route-id="@Model.Id" class="btn btn-success">Unlock</a>

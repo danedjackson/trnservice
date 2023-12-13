@@ -37,19 +37,19 @@
                     <nav class="sidebar-nav">
                         <ul id="sidebarnav" class="mb-4 pb-2">
                             @*<li class="nav-small-cap">
-            <i class="ti ti-dots nav-small-cap-icon fs-5"></i>
-            <span class="hide-menu">Home</span>
-        </li>
-        <li class="sidebar-item">
-            <a class="sidebar-link sidebar-link primary-hover-bg"
-               href="./index.html"
-               aria-expanded="false">
-                <span class="aside-icon p-2 bg-light-primary rounded-3">
-                    <i class="ti ti-layout-dashboard fs-7 text-primary"></i>
-                </span>
-                <span class="hide-menu ms-2 ps-1">Dashboard</span>
-            </a>
-        </li>*@
+                                    <i class="ti ti-dots nav-small-cap-icon fs-5"></i>
+                                    <span class="hide-menu">Home</span>
+                                </li>
+                                <li class="sidebar-item">
+                                    <a class="sidebar-link sidebar-link primary-hover-bg"
+                                       href="./index.html"
+                                       aria-expanded="false">
+                                        <span class="aside-icon p-2 bg-light-primary rounded-3">
+                                            <i class="ti ti-layout-dashboard fs-7 text-primary"></i>
+                                        </span>
+                                        <span class="hide-menu ms-2 ps-1">Dashboard</span>
+                                    </a>
+                                </li>*@
                             <li class="nav-small-cap">
                                 <i class="ti ti-dots nav-small-cap-icon fs-5"></i>
                                 <span class="hide-menu">Services</span>
@@ -76,35 +76,36 @@
                                     <span class="hide-menu ms-2 ps-1">Bulk TRN Check</span>
                                 </a>
                             </li>
-
-                            <!-- Admin Section Start -->
-                            <li class="nav-small-cap">
-                                <i class="ti ti-dots nav-small-cap-icon fs-5"></i>
-                                <span class="hide-menu">Admin</span>
-                            </li>
-                            <li class="sidebar-item">
-                                <a class="sidebar-link sidebar-link warning-hover-bg"
-                                   asp-action="Index"
-                                   asp-controller="Role"
-                                   aria-expanded="false">
-                                    <span class="aside-icon p-2 bg-light-warning rounded-3">
-                                        <i class="ti ti-login fs-7 text-warning"></i>
-                                    </span>
-                                    <span class="hide-menu ms-2 ps-1">Manage Roles</span>
-                                </a>
-                            </li>
-                            <li class="sidebar-item">
-                                <a class="sidebar-link sidebar-link danger-hover-bg"
-                                   asp-action="Index"
-                                   asp-controller="User"
-                                   aria-expanded="false">
-                                    <span class="aside-icon p-2 bg-light-danger rounded-3">
-                                        <i class="ti ti-user-plus fs-7 text-danger"></i>
-                                    </span>
-                                    <span class="hide-menu ms-2 ps-1">Manage Users</span>
-                                </a>
-                            </li>
-
+                            @if (User.IsInRole("ADMIN"))
+                            {
+                                <!-- Admin Section Start -->
+                                <li class="nav-small-cap">
+                                    <i class="ti ti-dots nav-small-cap-icon fs-5"></i>
+                                    <span class="hide-menu">Admin</span>
+                                </li>
+                                <li class="sidebar-item">
+                                    <a class="sidebar-link sidebar-link warning-hover-bg"
+                                       asp-action="Index"
+                                       asp-controller="Role"
+                                       aria-expanded="false">
+                                        <span class="aside-icon p-2 bg-light-warning rounded-3">
+                                            <i class="ti ti-login fs-7 text-warning"></i>
+                                        </span>
+                                        <span class="hide-menu ms-2 ps-1">Manage Roles</span>
+                                    </a>
+                                </li>
+                                <li class="sidebar-item">
+                                    <a class="sidebar-link sidebar-link danger-hover-bg"
+                                       asp-action="Index"
+                                       asp-controller="User"
+                                       aria-expanded="false">
+                                        <span class="aside-icon p-2 bg-light-danger rounded-3">
+                                            <i class="ti ti-user-plus fs-7 text-danger"></i>
+                                        </span>
+                                        <span class="hide-menu ms-2 ps-1">Manage Users</span>
+                                    </a>
+                                </li>
+                            }
                             <!-- Logout -->
                             <li class="nav-small-cap">
                                 <i class="ti ti-dots nav-small-cap-icon fs-5"></i>
@@ -140,7 +141,7 @@
                             Hello @(User.Identity.Name)!
                             <li class="nav-item dropdown">
                                 <a class="nav-link nav-icon-hover" href="javascript:void(0)" id="drop2" data-bs-toggle="dropdown"
-                                    aria-expanded="false">
+                                   aria-expanded="false">
                                     <img src="~/images/profile/user1.jpg" alt="" width="35" height="35" class="rounded-circle">
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
@@ -167,5 +168,5 @@
         <script src="~/js/sidebarmenu.js"></script>
         <script src="~/js/app.min.js"></script>
         <script src="~/libs/simplebar/dist/simplebar.js"></script>
-</body>
+    </body>
 }

@@ -99,7 +99,7 @@ namespace trnservice.Areas.Identity.Pages.Account
                 }
 
                 var signInResult = await _signInManager.PasswordSignInAsync(Input.UserName, Input.Password, Input.RememberMe, lockoutOnFailure: true);
-
+                
                 if (!signInResult.Succeeded)
                 {
                     // Check for various login result scenarios
@@ -113,8 +113,15 @@ namespace trnservice.Areas.Identity.Pages.Account
                         return RedirectToPage("./Lockout");
                     }
 
-                    // Invalid login attempt, add error message
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    if(user != null) { 
+                        // Invalid login attempt, add error message
+                        ModelState.AddModelError(string.Empty, $"Invalid login attempt. " +
+                            $"Attempts left: {(_signInManager.Options.Lockout.MaxFailedAccessAttempts-1) - user.AccessFailedCount}");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, $"{Input.UserName} does not exist");
+                    }
                     return Page();
                 }
 

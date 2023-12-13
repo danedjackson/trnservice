@@ -1,0 +1,17 @@
+﻿@page
+@model LockoutModel
+@{
+    ViewData["Title"] = "Locked out";
+}
+
+<header>
+    <h1 class="text-danger">@ViewData["Title"]</h1>
+    <p class="text-danger">This account has been locked out, please try again after 12 hours.</p>
+    <p class="text-danger">You can also contact administrative support by emailing <a href="mailto:techsupport@mlss.gov.jm">Technical Support</a>(techsupport@mlss.gov.jm)</p>
+</header>
+
+<form asp-area="Identity" asp-page="/Account/Login">
+    <div class="mb-2">
+        <button type="submit" class="btn btn-info m-1">Back To Login</button>
+    </div>
+</form>

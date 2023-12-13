@@ -96,14 +96,15 @@ namespace trnservice.Controllers
                     UserName = userModel.UserName,
                     Email = userModel.Email
                 };
+                string randomPassword = _utils.GenerateRandomPassword(6);
 
-                IdentityResult result = await _userManager.CreateAsync(user, userModel.Password);
+                IdentityResult result = await _userManager.CreateAsync(user, randomPassword);
 
                 if (result.Succeeded)
                 {
-                    await SendEmailConfirmationCode(user);
+                    await SendEmailConfirmationCode(user, randomPassword);
 
-                    userModel.Message = "Successfully created user details";
+                    userModel.Message = "Successfully created user details. Inform user to check their email for login information.";
 
                     return View(userModel);
                 }
@@ -158,9 +159,12 @@ namespace trnservice.Controllers
 
         public async Task<IActionResult> ResendConfirmationEmail(string id)
         {
-            var user = await _userManager.FindByIdAsync(id);
+            ApplicationUser user = await _userManager.FindByIdAsync(id);
+            string randomPassword = _utils.GenerateRandomPassword(6);
 
-            await SendEmailConfirmationCode(user);
+            await UpdatePassword(user, randomPassword);
+
+            await SendEmailConfirmationCode(user, randomPassword);
 
             return View();
         }
@@ -246,14 +250,15 @@ namespace trnservice.Controllers
         {
             return _utils.PaginateList(_userManager.Users, 1, 10);
         }
-        //private async Task UpdatePassword(ApplicationUser applicationUser)
-        //{
-        //    // Setting new password from model
-        //    var token = await _userManager.GeneratePasswordResetTokenAsync(applicationUser);
-        //    _ = await _userManager.ResetPasswordAsync(applicationUser, token, applicationUser.Password);
-        //}
 
-        private async Task SendEmailConfirmationCode(ApplicationUser user)
+        private async Task UpdatePassword(ApplicationUser applicationUser, string newPassword)
+        {
+            // Setting new password from model
+            var token = await _userManager.GeneratePasswordResetTokenAsync(applicationUser);
+            await _userManager.ResetPasswordAsync(applicationUser, token, newPassword);
+        }
+
+        private async Task SendEmailConfirmationCode(ApplicationUser user, string randomPassword)
         {
             // Generate code to confirm email
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -265,6 +270,12 @@ namespace trnservice.Controllers
                 protocol: Request.Scheme);
 
             _emailService.SendEmail(user.Email, "Confirm your email",
+                $"Hello {user.FirstName}, your account was created for the TRN Validation Service. </br>" +
+                $"You will need to activate your account by clicking the link below. </br>" +
+                $"Please note that you will need to use the One Time Password to create a new password on first log in.</br></br>" +
+                $"See below for your Username, OTP and Confirmation link:</br></br>" +
+                $"Your Username is: <b>{user.UserName}</b></br>" +
+                $"Your One Time Password (OTP) is: <b>{randomPassword}</b></br></br>" +
                 $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
         }
     }

@@ -52,5 +52,26 @@ namespace trnservice.Services
 
             return new PagedList<T>(pagedUsers, totalCount, page, pageSize);
         }
+
+        public string GenerateRandomPassword(int passwordLength)
+        {
+            Random res = new Random();
+
+            // String of alphabets and numbers
+            string characterPool = "abcdefghijklmnopqrstuvwxyz0123456789";
+
+            // Initializing the empty password string 
+            string randomPassword = "";
+
+            for (int i = 0; i < passwordLength; i++)
+            {
+                // Selecting a index randomly 
+                int randomChar = res.Next(36);
+
+                // Appending the character at the index to the random password. 
+                randomPassword += characterPool[randomChar];
+            }
+            return randomPassword;
+        }
     }
 }

@@ -12,12 +12,14 @@ namespace trnservice.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly EmailService _emailService;
+        private readonly SignInManager<ApplicationUser> _signInManager;
 
         public AccountController(UserManager<ApplicationUser> userManager,
-            EmailService emailService)
+            EmailService emailService, SignInManager<ApplicationUser> signInManager)
         {
             _userManager = userManager;
             _emailService = emailService;
+            _signInManager = signInManager;
         }
         [HttpGet]
         public IActionResult ForgotPassword()
@@ -169,6 +171,9 @@ namespace trnservice.Controllers
                 }
                 return View();
             }
+            // Sign user out so they will be redirected to Login Screen
+            await _signInManager.SignOutAsync();
+
             forceChangePasswordViewModel.Message = "You have successfully changed your password! Use your updated password on your next sign in.";
             return View(forceChangePasswordViewModel);
         }

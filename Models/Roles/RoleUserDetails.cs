@@ -10,7 +10,7 @@ namespace trnservice.Models
     public class RoleUserDetails
     {
         public IdentityRole Role { get; set; }
-        public IEnumerable<ApplicationUser> Members { get; set; }
-        public IEnumerable<ApplicationUser> NonMembers { get; set; }
+        public PagedList<ApplicationUser> Members { get; set; }
+        public PagedList<ApplicationUser> NonMembers { get; set; }
     }
 }

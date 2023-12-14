@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using trnservice.Areas.Identity.Data;
 using trnservice.Models;
@@ -46,6 +47,14 @@ namespace trnservice.Services
         }
 
         public PagedList<T> PaginateList<T>(IQueryable<T> query, int page, int pageSize)
+        {
+            var totalCount = query.Count();
+            var pagedUsers = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            return new PagedList<T>(pagedUsers, totalCount, page, pageSize);
+        }
+
+        public PagedList<T> PaginateList<T>(List<T> query, int page, int pageSize)
         {
             var totalCount = query.Count();
             var pagedUsers = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();

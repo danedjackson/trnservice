@@ -8,6 +8,18 @@
 <h5 class="card-title fw-semibold mb-4">Update Roles</h5>
 <div class="card">
     <div class="card-body">
+        
+        <form method="get" action="@Url.Action("Update")">
+            <div class="form-row mb-3">
+                <div class="col mb-3">
+                    <input type="text" class="form-control" placeholder="Search" name="searchString"
+                           value="@ViewBag.SearchString" />
+                </div>
+                <div class="col">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+            </div>
+        </form>
 
         <form method="post">
             <input type="hidden" name="roleName" value="@Model.Role.Name" />
@@ -15,43 +27,139 @@
 
             <h2>Add To @Model.Role.Name</h2>
             <table class="table table-bordered table-sm">
-                @if (Model.NonMembers.Count() == 0)
+                @if (Model.NonMembers.Items.Count() == 0)
                 {
-                    <tr><td colspan="2">All Users Are Members</td></tr>
+                    <tr><td colspan="2">No Users</td></tr>
                 }
                 else
                 {
-                    @foreach (ApplicationUser user in Model.NonMembers)
+                    <tr>
+                        <th>
+                            <a asp-action="Update"
+                               asp-route-sortOrder="nonMemberFirstName"
+                               asp-route-sortDirection="@(ViewBag.SortDirection == "asc" ? "desc" : "asc")">
+                                First Name
+                            </a>
+                        </th>
+                        <th>
+                            <a asp-action="Update"
+                               asp-route-sortOrder="nonMemberLastName"
+                               asp-route-sortDirection="@(ViewBag.SortDirection == "asc" ? "desc" : "asc")">
+                                Last Name
+                            </a>
+                        </th>
+
+                        <th>
+                            <a asp-action="Update"
+                               asp-route-sortOrder="nonMemberUsername"
+                               asp-route-sortDirection="@(ViewBag.SortDirection == "asc" ? "desc" : "asc")">
+                                Username
+                            </a>
+                        </th>
+
+                        <th>
+                            <a asp-action="Update"
+                               asp-route-sortOrder="nonMemberEmail"
+                               asp-route-sortDirection="@(ViewBag.SortDirection == "asc" ? "desc" : "asc")">
+                                Email Address
+                            </a>
+                        </th>
+                        <th>Action</th>
+                    </tr>
+                    @foreach (ApplicationUser user in Model.NonMembers.Items)
                     {
                         <tr>
+                            <td>@user.FirstName</td>
+                            <td>@user.LastName</td>
                             <td>@user.UserName</td>
+                            <td>@user.Email</td>
                             <td>
-                                <input type="checkbox" name="AddIds" value="@user.Id">
+                                <input type="checkbox" class="form-check-input" name="AddIds" value="@user.Id"> Add To Role
                             </td>
                         </tr>
                     }
                 }
             </table>
 
+            <div class="pagination">
+                @for (var i = 1; i <= Model.NonMembers.TotalPages; i++)
+                {
+                    <a href="@Url.Action("Index", new {
+                        page = i,
+                        searchString = ViewBag.SearchString,
+                        showInactive = ViewBag.ShowInactive,
+                        sortOrder = ViewBag.SortOrder })" class="page-link">@i</a>
+                    }
+            </div>
+
             <h2>Remove From @Model.Role.Name</h2>
             <table class="table table-bordered table-sm">
-                @if (Model.Members.Count() == 0)
+                @if (Model.Members.Items.Count() == 0)
                 {
-                    <tr><td colspan="2">No Users Are Members</td></tr>
+                    <tr><td colspan="2">No Users</td></tr>
                 }
                 else
                 {
-                    @foreach (ApplicationUser user in Model.Members)
+                    <tr>
+                        <th>
+                            <a asp-action="Update"
+                               asp-route-sortOrder="membersFirstName"
+                               asp-route-sortDirection="@(ViewBag.SortDirection == "asc" ? "desc" : "asc")">
+                                First Name
+                            </a>
+                        </th>
+                        <th>
+                            <a asp-action="Update"
+                               asp-route-sortOrder="membersLastName"
+                               asp-route-sortDirection="@(ViewBag.SortDirection == "asc" ? "desc" : "asc")">
+                                Last Name
+                            </a>
+                        </th>
+
+                        <th>
+                            <a asp-action="Update"
+                               asp-route-sortOrder="membersUsername"
+                               asp-route-sortDirection="@(ViewBag.SortDirection == "asc" ? "desc" : "asc")">
+                                Username
+                            </a>
+                        </th>
+
+                        <th>
+                            <a asp-action="Update"
+                               asp-route-sortOrder="membersEmail"
+                               asp-route-sortDirection="@(ViewBag.SortDirection == "asc" ? "desc" : "asc")">
+                                Email Address
+                            </a>
+                        </th>
+                        <th>Action</th>
+                    </tr>
+                    @foreach (ApplicationUser user in Model.Members.Items)
                     {
                         <tr>
+                            <td>@user.FirstName</td>
+                            <td>@user.LastName</td>
                             <td>@user.UserName</td>
+                            <td>@user.Email</td>
                             <td>
-                                <input type="checkbox" name="DeleteIds" value="@user.Id">
+                                <input type="checkbox" class="form-check-input" name="DeleteIds" value="@user.Id"> Remove From Role
                             </td>
                         </tr>
                     }
                 }
             </table>
+
+
+            <div class="pagination">
+                @for (var i = 1; i <= Model.Members.TotalPages; i++)
+                {
+                    <a href="@Url.Action("Index", new {
+                        page = i,
+                        searchString = ViewBag.SearchString,
+                        showInactive = ViewBag.ShowInactive,
+                        sortOrder = ViewBag.SortOrder })" class="page-link">@i</a>
+                    }
+            </div>
+
             <a asp-action="Index" class="btn btn-secondary">Back</a>
             <button type="submit" class="btn btn-primary">Save</button>
         </form>

@@ -164,7 +164,8 @@ namespace trnservice.Controllers
 
         // Fetch members and non-members of a selected Role
         [HasPermission(Permissions.CanDoRoleManagement)]
-        public async Task<IActionResult> Update(string id)
+        public async Task<IActionResult> Update(string id, string searchString, string sortOrder,
+            string sortDirection, int page = 1, int pageSize = 10)
         {
             IdentityRole role = await _roleManager.FindByIdAsync(id);
             List<ApplicationUser> members = new List<ApplicationUser>();
@@ -182,11 +183,81 @@ namespace trnservice.Controllers
                     nonMembers.Add(user);
                 }
             }
+
+
+            // Apply search filter from UI
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                // Filter members
+                var filteredMembers = members.Where(user =>
+                    user.Email.Contains(searchString) ||
+                    user.FirstName.Contains(searchString) ||
+                    user.LastName.Contains(searchString) ||
+                    user.UserName.Contains(searchString))
+                    .ToList();
+
+                // Filter nonMembers
+                var filteredNonMembers = nonMembers.Where(user =>
+                    user.Email.Contains(searchString) ||
+                    user.FirstName.Contains(searchString) ||
+                    user.LastName.Contains(searchString) ||
+                    user.UserName.Contains(searchString))
+                    .ToList();
+
+                // Use the filtered results
+                members = filteredMembers;
+                nonMembers = filteredNonMembers;
+            }
+
+            // Apply sorting
+
+            // Create copies of the original lists
+            List<ApplicationUser> membersCopy = new List<ApplicationUser>(members);
+            List<ApplicationUser> nonMembersCopy = new List<ApplicationUser>(nonMembers);
+
+            if (!string.IsNullOrEmpty(sortOrder))
+            {
+                switch (sortOrder.ToLower())
+                {
+                    case "nonmemberfirstname":
+                        nonMembersCopy = SortList(nonMembers, "FirstName", sortDirection);
+                        break;
+                    case "nonmemberlastname":
+                        nonMembersCopy = SortList(nonMembers, "LastName", sortDirection);
+                        break;
+                    case "nonmemberusername":
+                        nonMembersCopy = SortList(nonMembers, "UserName", sortDirection);
+                        break;
+                    case "nonmemberemail":
+                        nonMembersCopy = SortList(nonMembers, "Email", sortDirection);
+                        break;
+                    case "membersfirstname":
+                        membersCopy = SortList(members, "FirstName", sortDirection);
+                        break;
+                    case "memberslastname":
+                        membersCopy = SortList(members, "LastName", sortDirection);
+                        break;
+                    case "membersusername":
+                        membersCopy = SortList(members, "UserName", sortDirection);
+                        break;
+                    case "membersemail":
+                        membersCopy = SortList(members, "Email", sortDirection);
+                        break;
+                }
+            }
+            // Apply pagination
+            PagedList<ApplicationUser> pagedMembers = _utils.PaginateList(membersCopy, page, pageSize);
+            PagedList<ApplicationUser> pagedNonMembers = _utils.PaginateList(nonMembersCopy, page, pageSize);
+
+            // Pass sorting information to the view
+            ViewBag.SortOrder = sortOrder;
+            ViewBag.SortDirection = sortDirection;
+
             return View(new RoleUserDetails
             {
                 Role = role,
-                Members = members,
-                NonMembers = nonMembers
+                Members = pagedMembers,
+                NonMembers = pagedNonMembers
             });
         }
 
@@ -231,7 +302,8 @@ namespace trnservice.Controllers
             }
             else
             {
-                return await Update(userRoleModification.RoleId);
+                // return await Update(userRoleModification.RoleId);
+                return RedirectToAction("Index", FindNonDeletedRoles());
             }
         }
 
@@ -386,6 +458,32 @@ namespace trnservice.Controllers
         private PagedList<ApplicationRole> FindNonDeletedRoles()
         {
             return _utils.PaginateList(_roleManager.Roles.Where(role => role.IsActive == true), 1, 10);
+        }
+
+        // Helper method for sorting
+        private List<ApplicationUser> SortList(List<ApplicationUser> list, string criteria, string sortDirection)
+        {
+            switch (criteria.ToLower())
+            {
+                case "firstname":
+                    return (sortDirection?.ToLower() == "desc")
+                        ? list.OrderByDescending(user => user.FirstName).ToList()
+                        : list.OrderBy(user => user.FirstName).ToList();
+                case "lastname":
+                    return (sortDirection?.ToLower() == "desc")
+                        ? list.OrderByDescending(user => user.LastName).ToList()
+                        : list.OrderBy(user => user.LastName).ToList();
+                case "username":
+                    return (sortDirection?.ToLower() == "desc")
+                        ? list.OrderByDescending(user => user.UserName).ToList()
+                        : list.OrderBy(user => user.UserName).ToList();
+                case "email":
+                    return (sortDirection?.ToLower() == "desc")
+                        ? list.OrderByDescending(user => user.Email).ToList()
+                        : list.OrderBy(user => user.Email).ToList();
+                default:
+                    return list; // No sorting for unknown properties
+            }
         }
     }
 }

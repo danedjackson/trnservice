@@ -57,33 +57,34 @@
                 <tr>
                     <td>@role.Id</td>
                     <td>@role.Name</td>
-                    @if(role.IsActive)
-                    { 
+                    @if (role.IsActive)
+                    {
                         <td>
                             <button class="btn btn-sm btn-success m-1 disabled">Active</button>
                         </td>
-                    } else 
+                    }
+                    else
                     {
                         <td>
                             <button class="btn btn-sm btn-dark m-1 disabled">Inactive</button>
                         </td>
                     }
-                <td>
-                    @if (role.IsActive)
-                    {
-                        <a class="btn btn-sm btn-primary" asp-action="Update" asp-route-id="@role.Id">Update Users</a>
-                        <a class="btn btn-sm btn-warning" asp-action="UpdatePermissions" asp-route-id="@role.Id">Update Permissions</a>
-                        <a class="btn btn-sm btn-danger" onclick="confirmDelete('@role.Id')">Deactivate</a>
-                    }
-                    else
-                    {
-                        <a class="btn btn-sm btn-success" asp-action="Reactivate" asp-route-id="@role.Id">Reactivate</a>
-                    }
-                </td>
+                    <td>
+                        @if (role.IsActive)
+                        {
+                            <a class="btn btn-sm btn-primary" asp-action="Update" asp-route-id="@role.Id">Update Users</a>
+                            <a class="btn btn-sm btn-warning" asp-action="UpdatePermissions" asp-route-id="@role.Id">Update Permissions</a>
+                            <a class="btn btn-sm btn-danger" onclick="confirmDelete('@role.Id')">Deactivate</a>
+                        }
+                        else
+                        {
+                            <a class="btn btn-sm btn-success" asp-action="Reactivate" asp-route-id="@role.Id">Reactivate</a>
+                        }
+                    </td>
                 </tr>
             }
         </table>
-        <div class="pagination">
+        <div class="pagination mb-3">
             @for (var i = 1; i <= Model.TotalPages; i++)
             {
                 <a href="@Url.Action("Index", new {
@@ -91,8 +92,16 @@
                         searchString = ViewBag.SearchString,
                         showInactive = ViewBag.ShowInactive,
                         sortOrder = ViewBag.SortOrder })" class="page-link">@i</a>
-             }
+                    }
         </div>
+
+        @if (ViewBag.SuccessMessage != null)
+        {
+            <div class="mb-3" style="max-width: 50%";>
+                <div class="alert alert-success" role="alert">@ViewBag.SuccessMessage</div>
+            </div>
+        }
+
         <a asp-action="Create" class="btn btn-secondary">Create a Role</a>
     </div>
 

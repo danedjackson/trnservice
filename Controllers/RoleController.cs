@@ -76,6 +76,12 @@ namespace trnservice.Controllers
             ViewBag.SortDirection = sortDirection;
             ViewBag.ShowInactive = showInactive;
 
+            // Check for success message in TempData
+            if (TempData.ContainsKey("SuccessMessage"))
+            {
+                ViewBag.SuccessMessage = TempData["SuccessMessage"];
+            }
+
             return View(pagedResult);
 
             //return View(_roleManager.Roles.Where(role => role.IsActive));
@@ -279,6 +285,10 @@ namespace trnservice.Controllers
                         {
                             Errors(result);
                         }
+                        else
+                        {
+                            TempData["SuccessMessage"] = $"{user.UserName} successfully added to {userRoleModification.RoleName} role.";
+                        }
                     }
                 }
                 // If DeleteIds is not empty, remove role from users
@@ -291,6 +301,10 @@ namespace trnservice.Controllers
                         if (!result.Succeeded)
                         {
                             Errors(result);
+                        }
+                        else
+                        {
+                            TempData["SuccessMessage"] = $"{user.UserName} successfully removed from {userRoleModification.RoleName} role.";
                         }
                     }
                 }

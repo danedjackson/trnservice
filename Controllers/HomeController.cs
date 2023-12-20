@@ -60,10 +60,17 @@ namespace trnservice.Controllers
         {
             if (file == null || file.Length == 0 || !file.FileName.EndsWith(".csv"))
             {
-                return Content("No csv file selected");
+                ModelState.AddModelError(string.Empty, "No csv file selected");
+                return View("Upload");
             }
-            return _trnService.MultipleTRNValidation(file);
+
+            var result = _trnService.MultipleTRNValidation(file);
+
+
+            return result;
+
         }
+
 
         public IActionResult Reset()
         {

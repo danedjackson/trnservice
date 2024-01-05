@@ -83,8 +83,6 @@ namespace trnservice.Controllers
             }
 
             return View(pagedResult);
-
-            //return View(_roleManager.Roles.Where(role => role.IsActive));
         }
 
         [HasPermission(Permissions.CanDoRoleManagement)]
@@ -98,7 +96,6 @@ namespace trnservice.Controllers
         {
             if (ModelState.IsValid)
             {
-                // TODO: Confirm we want isActive functionality for roles
                 var role = await _roleManager.FindByNameAsync(roleCreationDetails.Name);
                 if (null != role)
                 {
@@ -110,8 +107,6 @@ namespace trnservice.Controllers
                         return View("Create");
                     }
                 }
-
-
 
                 IdentityResult result = await _roleManager.CreateAsync(new ApplicationRole { 
                     Name = roleCreationDetails.Name,
@@ -190,7 +185,6 @@ namespace trnservice.Controllers
                 }
             }
 
-
             // Apply search filter from UI
             if (!string.IsNullOrEmpty(searchString))
             {
@@ -216,8 +210,7 @@ namespace trnservice.Controllers
             }
 
             // Apply sorting
-
-            // Create copies of the original lists
+            // Create copies of the original lists for sorting as sorting original lists may lead to issues
             List<ApplicationUser> membersCopy = new List<ApplicationUser>(members);
             List<ApplicationUser> nonMembersCopy = new List<ApplicationUser>(nonMembers);
 
@@ -251,7 +244,7 @@ namespace trnservice.Controllers
                         break;
                 }
             }
-            // Apply pagination
+            // Apply pagination 
             PagedList<ApplicationUser> pagedMembers = _utils.PaginateList(membersCopy, page, pageSize);
             PagedList<ApplicationUser> pagedNonMembers = _utils.PaginateList(nonMembersCopy, page, pageSize);
 
@@ -316,7 +309,6 @@ namespace trnservice.Controllers
             }
             else
             {
-                // return await Update(userRoleModification.RoleId);
                 return RedirectToAction("Index", FindNonDeletedRoles());
             }
         }

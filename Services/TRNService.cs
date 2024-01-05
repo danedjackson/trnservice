@@ -87,7 +87,6 @@ namespace trnservice.Services
                         && RawString(ltrn[4]) == RawString(objtrn.IndividualInfo.LastName)
                         && RawString(ltrn[10]) == RawString(objtrn.IndividualInfo.GenderType))
                     {
-                        //sb.AppendLine(string.Format("{0},{1},{2},{3},{4},{5},{6}", line, objtrn.IndividualInfo.FirstName, objtrn.IndividualInfo.MiddleName, objtrn.IndividualInfo.LastName, objtrn.IndividualInfo.BirthDate.Value.ToShortDateString(), objtrn.IndividualInfo.GenderType, objtrn.IndividualInfo.NbrTrn));
                         sb.AppendLine(line + ", TRN MATCHED");
                     }
                     else

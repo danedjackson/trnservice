@@ -135,13 +135,7 @@ namespace trnservice.Controllers
             ApplicationUser userDbRecord = await _userManager.FindByIdAsync(user.Id);
             userDbRecord.FirstName = user.FirstName;
             userDbRecord.LastName = user.LastName;
-            // Since we have Forgot Password Feature, admins shouldn't be able to set passwords for users
-            //if(null != user.Password)
-            //{
-            //    userDbRecord.Password = user.Password;
-                
-            //    await UpdatePassword(userDbRecord);
-            //}
+
             // Setting ModifiedBy and LastModified fields
             userDbRecord = _utils.UpdateModifiedFields(userDbRecord, User.Identity.Name);
 

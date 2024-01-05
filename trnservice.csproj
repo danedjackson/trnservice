@@ -11,6 +11,12 @@
     <Compile Remove="Migrations\20231116173832_InitialCreateNo2.Designer.cs" />
     <Compile Remove="Migrations\20231206152830_AddingLastLoggedInToUser.cs" />
     <Compile Remove="Migrations\20231206152830_AddingLastLoggedInToUser.Designer.cs" />
+    <Compile Remove="Migrations\20240105162523_AddingPlatformUserTable.cs" />
+    <Compile Remove="Migrations\20240105162523_AddingPlatformUserTable.Designer.cs" />
+    <Compile Remove="Migrations\20240105163044_AddingPlatformUserTable.cs" />
+    <Compile Remove="Migrations\20240105163044_AddingPlatformUserTable.Designer.cs" />
+    <Compile Remove="Migrations\20240105163220_AddingPlatformUserTable.cs" />
+    <Compile Remove="Migrations\20240105163220_AddingPlatformUserTable.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

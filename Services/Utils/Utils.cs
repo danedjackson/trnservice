@@ -4,7 +4,7 @@ using System.Linq;
 using trnservice.Areas.Identity.Data;
 using trnservice.Models;
 
-namespace trnservice.Services
+namespace trnservice.Services.Utils
 {
     public class Utils
     {

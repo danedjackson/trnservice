@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using trnservice.Areas.Identity.Data;
 using trnservice.Data;
 using Microsoft.EntityFrameworkCore;
+using trnservice.Services.Utils;
 
 namespace trnservice.Areas.Identity.Pages.Account
 {
@@ -94,7 +95,17 @@ namespace trnservice.Areas.Identity.Pages.Account
                 if (user != null && !user.IsActive)
                 {
                     ModelState.AddModelError(string.Empty, "Account Inactive.");
-                    await _signInManager.SignOutAsync();
+                    //await _signInManager.SignOutAsync();
+                    return Page();
+                }
+                // Check to see if the userId exists for this platform
+                bool userExistsInPlatformUsers = _authDbContext.PlatformUsers.Any(platformUser => 
+                    platformUser.UserId == user.Id 
+                        && platformUser.PlatformId == Convert.ToInt32(AppSettings.GetAppSetting("PlatformId")));
+               
+                if (!userExistsInPlatformUsers)
+                {
+                    ModelState.AddModelError(string.Empty, "Account not registered for this platform");
                     return Page();
                 }
 

@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using trnservice.Areas.Identity.Data;
 using trnservice.Services;
+using trnservice.Services.Utils;
 using trnservice.Services.Authorize;
 
 namespace trnservice
@@ -46,6 +47,9 @@ namespace trnservice
 
             // Identity
             services.AddRazorPages();
+
+            // Initialize AppSettings with the configuration
+            AppSettings.Initialize(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 
@@ -36,8 +37,7 @@ namespace trnservice.Areas.Identity.Data
         [Column(TypeName = "datetime")]
         public DateTime? LastModified { get; set; }
 
-        // Field only used to aid in password changes
-        //[NotMapped]
-        //public string Password { get; set; }
+        [JsonIgnore]
+        public ICollection<ApplicationPlatformUser> PlatformUsers { get; set; }
     }
 }

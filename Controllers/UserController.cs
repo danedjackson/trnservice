@@ -11,7 +11,10 @@ using EmailClient;
 using System.Text;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Text.Encodings.Web;
-using trnservice.Services;
+using trnservice.Services.Utils;
+using trnservice.Data;
+using System;
+using Microsoft.Extensions.Logging;
 
 namespace trnservice.Controllers
 {
@@ -19,14 +22,19 @@ namespace trnservice.Controllers
     public class UserController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly AuthDbContext _authDbContext;
         private readonly EmailService _emailService;
+        private readonly ILogger<UserController> _logger;
         private readonly Utils _utils;
         public UserController(UserManager<ApplicationUser> userManager,
-            EmailService emailService, Utils utils)
+            EmailService emailService, Utils utils, AuthDbContext authDbContext, 
+            ILogger<UserController> logger)
         {
             _userManager = userManager;
             _emailService = emailService;
             _utils = utils;
+            _authDbContext = authDbContext;
+            _logger = logger;
         }
 
         public IActionResult Index(string searchString, bool showInactive, string sortOrder, 
@@ -100,8 +108,24 @@ namespace trnservice.Controllers
 
                 IdentityResult result = await _userManager.CreateAsync(user, randomPassword);
 
+
                 if (result.Succeeded)
                 {
+                    // Add the new user to the Platform table
+                    var userLookup =await  _userManager.FindByNameAsync(user.UserName);
+                    string userId = userLookup.Id;
+
+                    _authDbContext.PlatformUsers.Add(new ApplicationPlatformUser()
+                    {
+                        PlatformId = Convert.ToInt32(AppSettings.GetAppSetting("PlatformId")),
+                        UserId = userId
+                    });
+                    var saved = _authDbContext.SaveChanges();
+                    if (saved < 1 )
+                    {
+                        _logger.LogWarning("Failed to update user information for this platform.");
+                    }
+
                     await SendEmailConfirmationCode(user, randomPassword);
 
                     userModel.Message = "Successfully created user details. Inform user to check their email for login information.";
